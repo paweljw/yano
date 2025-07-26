@@ -29,10 +29,8 @@ jobs:
         run: bun install
 
       - name: Check licenses
-        uses: jaliborc/license-checker-action@v1.3.0
-        with:
-          fail: 'GPL,LGPL,AGPL,CDDL,OSL,EPL,MS-PL'
-          exclude: 'yano'  # Exclude our own package
+        run: |
+          bunx license-checker --production --excludePrivatePackages --onlyAllow "MIT;ISC;BSD-2-Clause;BSD-3-Clause;Apache-2.0;CC0-1.0;Unlicense;0BSD;WTFPL" --summary
 
   lint:
     name: Lint
