@@ -16,26 +16,26 @@ This is a T3 Stack project using:
 
 ### Development
 ```bash
-npm run dev          # Start development server with Turbo
-npm run preview      # Build and start production server
+bun run dev          # Start development server with Turbo
+bun run preview      # Build and start production server
 ```
 
 ### Code Quality
 ```bash
-npm run check        # Run linting and type checking
-npm run lint         # Run ESLint
-npm run lint:fix     # Fix ESLint issues
-npm run typecheck    # Type check with TypeScript
-npm run format:check # Check code formatting
-npm run format:write # Format code with Prettier
+bun run check        # Run linting and type checking
+bun run lint         # Run ESLint
+bun run lint:fix     # Fix ESLint issues
+bun run typecheck    # Type check with TypeScript
+bun run format:check # Check code formatting
+bun run format:write # Format code with Prettier
 ```
 
 ### Database
 ```bash
-npm run db:push      # Push schema changes to database
-npm run db:generate  # Generate Prisma migrations
-npm run db:migrate   # Apply migrations
-npm run db:studio    # Open Prisma Studio GUI
+bun run db:push      # Push schema changes to database
+bun run db:generate  # Generate Prisma migrations
+bun run db:migrate   # Apply migrations
+bun run db:studio    # Open Prisma Studio GUI
 ```
 
 ## High-Level Architecture
