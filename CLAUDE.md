@@ -38,6 +38,13 @@ bun run db:migrate   # Apply migrations
 bun run db:studio    # Open Prisma Studio GUI
 ```
 
+### Testing
+```bash
+bun run test         # Run tests in watch mode
+bun run test:ui      # Run tests with UI
+bun run test:coverage # Run tests with coverage report
+```
+
 ## High-Level Architecture
 
 ### Directory Structure
