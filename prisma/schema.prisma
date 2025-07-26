@@ -111,6 +111,7 @@ model User {
     email         String?   @unique
     emailVerified DateTime?
     image         String?
+    lastResetDate DateTime  @default(now()) // Track last daily reset
     accounts      Account[]
     sessions      Session[]
     tasks         Task[]

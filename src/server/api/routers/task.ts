@@ -5,9 +5,78 @@ import {
   protectedProcedure,
 } from "~/server/api/trpc";
 
+// Helper to check if daily reset is needed
+const needsDailyReset = (lastResetDate: Date): boolean => {
+  const now = new Date();
+  const lastReset = new Date(lastResetDate);
+  
+  // Reset if we're on a different day
+  return now.toDateString() !== lastReset.toDateString();
+};
+
+// Perform daily reset for a user
+const performDailyReset = async (ctx: any, userId: string) => {
+  const now = new Date();
+  
+  // Start a transaction to ensure consistency
+  await ctx.db.$transaction(async (tx: any) => {
+    // 1. Move PAUSED tasks back to TODAY (user was working on them)
+    await tx.task.updateMany({
+      where: {
+        userId,
+        status: TaskStatus.PAUSED,
+      },
+      data: {
+        status: TaskStatus.TODAY,
+      },
+    });
+    
+    // 2. Move untouched TODAY tasks back to INBOX
+    await tx.task.updateMany({
+      where: {
+        userId,
+        status: TaskStatus.TODAY,
+      },
+      data: {
+        status: TaskStatus.INBOX,
+        acceptedAt: null,
+      },
+    });
+    
+    // 3. Clear expired postponedUntil dates
+    await tx.task.updateMany({
+      where: {
+        userId,
+        postponedUntil: {
+          lte: now,
+        },
+      },
+      data: {
+        postponedUntil: null,
+      },
+    });
+    
+    // 4. Update user's lastResetDate
+    await tx.user.update({
+      where: { id: userId },
+      data: { lastResetDate: now },
+    });
+  });
+};
+
 export const taskRouter = createTRPCRouter({
   // Get inbox tasks (not postponed)
   getInbox: protectedProcedure.query(async ({ ctx }) => {
+    // Check if daily reset is needed
+    const user = await ctx.db.user.findUnique({
+      where: { id: ctx.session.user.id },
+      select: { lastResetDate: true },
+    });
+    
+    if (user && needsDailyReset(user.lastResetDate)) {
+      await performDailyReset(ctx, ctx.session.user.id);
+    }
+
     const now = new Date();
     return ctx.db.task.findMany({
       where: {
@@ -33,6 +102,16 @@ export const taskRouter = createTRPCRouter({
 
   // Get today's tasks
   getToday: protectedProcedure.query(async ({ ctx }) => {
+    // Check if daily reset is needed
+    const user = await ctx.db.user.findUnique({
+      where: { id: ctx.session.user.id },
+      select: { lastResetDate: true },
+    });
+    
+    if (user && needsDailyReset(user.lastResetDate)) {
+      await performDailyReset(ctx, ctx.session.user.id);
+    }
+
     return ctx.db.task.findMany({
       where: {
         userId: ctx.session.user.id,
@@ -383,5 +462,34 @@ export const taskRouter = createTRPCRouter({
           userId: ctx.session.user.id,
         },
       });
+    }),
+
+  // Manual daily reset (can be called by cron job)
+  performDailyReset: protectedProcedure
+    .mutation(async ({ ctx }) => {
+      await performDailyReset(ctx, ctx.session.user.id);
+      return { success: true };
+    }),
+    
+  // Reset all users (for cron job - requires special handling)
+  resetAllUsers: protectedProcedure
+    .mutation(async ({ ctx }) => {
+      // In production, you'd want to add additional auth check here
+      // to ensure only cron jobs can call this
+      
+      const users = await ctx.db.user.findMany({
+        select: { id: true, lastResetDate: true },
+      });
+      
+      const resetPromises = users
+        .filter(user => needsDailyReset(user.lastResetDate))
+        .map(user => performDailyReset(ctx, user.id));
+      
+      await Promise.all(resetPromises);
+      
+      return { 
+        success: true, 
+        usersReset: resetPromises.length 
+      };
     }),
 });
