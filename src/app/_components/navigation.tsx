@@ -1,9 +1,11 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useSession, signOut } from "next-auth/react";
 import { cn } from "~/lib/utils";
+import { NewTaskModal } from "./new-task-modal";
 
 const navItems = [
   { href: "/inbox", label: "Inbox", shortcut: "i" },
@@ -15,6 +17,14 @@ const navItems = [
 export function Navigation() {
   const pathname = usePathname();
   const { data: session } = useSession();
+  const [isNewTaskModalOpen, setIsNewTaskModalOpen] = useState(false);
+
+  // Listen for new task event
+  useEffect(() => {
+    const handleOpenNewTask = () => setIsNewTaskModalOpen(true);
+    window.addEventListener("openNewTask", handleOpenNewTask);
+    return () => window.removeEventListener("openNewTask", handleOpenNewTask);
+  }, []);
 
   // Don't show navigation if not authenticated
   if (!session?.user) {
@@ -22,6 +32,7 @@ export function Navigation() {
   }
 
   return (
+    <>
     <nav className="border-b border-zinc-800 bg-zinc-900/50 backdrop-blur-sm">
       <div className="container mx-auto px-4">
         <div className="flex h-16 items-center justify-between">
@@ -60,7 +71,10 @@ export function Navigation() {
           </div>
           
           <div className="flex items-center gap-4">
-            <button className="rounded-lg bg-gradient-to-r from-purple-500 to-pink-500 px-4 py-2 text-sm font-medium text-white transition-all hover:opacity-90">
+            <button
+              onClick={() => setIsNewTaskModalOpen(true)}
+              className="rounded-lg bg-gradient-to-r from-purple-500 to-pink-500 px-4 py-2 text-sm font-medium text-white transition-all hover:opacity-90"
+            >
               + New Task
             </button>
             <div className="h-8 w-px bg-zinc-800" />
@@ -80,5 +94,10 @@ export function Navigation() {
         </div>
       </div>
     </nav>
+      <NewTaskModal
+        isOpen={isNewTaskModalOpen}
+        onClose={() => setIsNewTaskModalOpen(false)}
+      />
+    </>
   );
 }
