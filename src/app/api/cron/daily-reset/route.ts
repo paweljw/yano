@@ -7,7 +7,7 @@ export async function GET(request: Request) {
   try {
     // In production, you should verify this is called by your cron service
     // For example, check for a secret header:
-    const headersList = headers();
+    const headersList = await headers();
     const cronSecret = headersList.get("x-cron-secret");
     
     // Uncomment in production:
@@ -32,7 +32,6 @@ export async function GET(request: Request) {
     const result = await api.task.resetAllUsers();
     
     return NextResponse.json({
-      success: true,
       timestamp: new Date().toISOString(),
       ...result,
     });

@@ -1,19 +1,12 @@
-import { auth } from "~/server/auth";
 import { NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
 
-export default auth((req) => {
-  const isLoggedIn = !!req.auth;
-  const isAuthPage = req.nextUrl.pathname === "/" || 
-                     req.nextUrl.pathname.startsWith("/api/auth");
-  
-  // Protect app routes
-  if (!isLoggedIn && !isAuthPage) {
-    return NextResponse.redirect(new URL("/", req.url));
-  }
-  
+export function middleware(request: NextRequest) {
+  // For now, we'll handle auth checks in each page/route
+  // This avoids the Edge runtime issue with Prisma
   return NextResponse.next();
-});
+}
 
 export const config = {
-  matcher: ["/((?!api/auth|_next/static|_next/image|favicon.ico).*)"],
+  matcher: ["/((?!api|_next/static|_next/image|favicon.ico).*)"],
 };

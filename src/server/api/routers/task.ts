@@ -311,7 +311,7 @@ export const taskRouter = createTRPCRouter({
         throw new Error("No active time session found");
       }
 
-      const activeSession = task.timeSessions[0];
+      const activeSession = task.timeSessions[0]!;
       const now = new Date();
       const duration = Math.floor((now.getTime() - activeSession.startedAt.getTime()) / 1000);
 
@@ -362,7 +362,7 @@ export const taskRouter = createTRPCRouter({
       
       // End any active time session
       if (task.timeSessions.length > 0) {
-        const activeSession = task.timeSessions[0];
+        const activeSession = task.timeSessions[0]!;
         const duration = Math.floor((now.getTime() - activeSession.startedAt.getTime()) / 1000);
 
         await ctx.db.timeSession.update({
