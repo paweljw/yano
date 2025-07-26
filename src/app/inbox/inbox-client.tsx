@@ -3,11 +3,14 @@
 import { useState, useEffect } from "react";
 import { api } from "~/trpc/react";
 import { TaskCard } from "../_components/task-card";
+import { EditTaskModal } from "../_components/edit-task-modal";
 import { cn } from "~/lib/utils";
 
 export function InboxClient() {
   const { data: tasks, isLoading, refetch } = api.task.getInbox.useQuery();
   const [selectedIndex, setSelectedIndex] = useState(0);
+  const [editingTask, setEditingTask] = useState<any>(null);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
   const acceptTask = api.task.accept.useMutation({
     onSuccess: () => refetch(),
@@ -68,6 +71,14 @@ export function InboxClient() {
             if (selectedIndex === tasks.length - 1 && selectedIndex > 0) {
               setSelectedIndex(selectedIndex - 1);
             }
+          }
+          break;
+        case "e":
+          e.preventDefault();
+          const taskToEdit = tasks[selectedIndex];
+          if (taskToEdit) {
+            setEditingTask(taskToEdit);
+            setIsEditModalOpen(true);
           }
           break;
       }
@@ -152,6 +163,15 @@ export function InboxClient() {
           </div>
         ))}
       </div>
+      
+      <EditTaskModal
+        task={editingTask}
+        isOpen={isEditModalOpen}
+        onClose={() => {
+          setIsEditModalOpen(false);
+          setEditingTask(null);
+        }}
+      />
     </div>
   );
 }

@@ -3,58 +3,62 @@
 import { useState, useEffect, useRef } from "react";
 import { api } from "~/trpc/react";
 import { cn } from "~/lib/utils";
+import type { Task } from "@prisma/client";
 
-interface NewTaskModalProps {
+interface EditTaskModalProps {
+  task: Task | null;
   isOpen: boolean;
   onClose: () => void;
 }
 
-export function NewTaskModal({ isOpen, onClose }: NewTaskModalProps) {
+export function EditTaskModal({ task, isOpen, onClose }: EditTaskModalProps) {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [priority, setPriority] = useState(3);
   const [spiciness, setSpiciness] = useState(3);
   const [deadline, setDeadline] = useState("");
-  const [subtasks, setSubtasks] = useState<string[]>([]);
-  const [newSubtask, setNewSubtask] = useState("");
   
   const titleRef = useRef<HTMLInputElement>(null);
   const utils = api.useUtils();
 
-  const createTask = api.task.create.useMutation({
-    onSuccess: () => {
-      utils.task.getInbox.invalidate();
-      onClose();
-      // Reset form
-      setTitle("");
-      setDescription("");
-      setPriority(3);
-      setSpiciness(3);
-      setDeadline("");
-      setSubtasks([]);
-      setNewSubtask("");
-    },
-  });
+  useEffect(() => {
+    if (task && isOpen) {
+      setTitle(task.title);
+      setDescription(task.description || "");
+      setPriority(task.priority);
+      setSpiciness(task.spiciness);
+      setDeadline(task.deadline ? task.deadline.toISOString().split('T')[0] : "");
+    }
+  }, [task, isOpen]);
 
   useEffect(() => {
     if (isOpen && titleRef.current) {
       titleRef.current.focus();
+      titleRef.current.select();
     }
   }, [isOpen]);
 
-  if (!isOpen) return null;
+  const updateTask = api.task.update.useMutation({
+    onSuccess: () => {
+      utils.task.getInbox.invalidate();
+      utils.task.getToday.invalidate();
+      onClose();
+    },
+  });
+
+  if (!isOpen || !task) return null;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!title.trim()) return;
 
-    createTask.mutate({
+    updateTask.mutate({
+      id: task.id,
       title: title.trim(),
       description: description.trim() || undefined,
       priority,
       spiciness,
-      deadline: deadline ? new Date(deadline) : undefined,
-      subtasks: subtasks.filter((s) => s.trim()),
+      deadline: deadline ? new Date(deadline) : null,
     });
   };
 
@@ -76,24 +80,12 @@ export function NewTaskModal({ isOpen, onClose }: NewTaskModalProps) {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isOpen, title]);
 
-  const addSubtask = () => {
-    if (newSubtask.trim()) {
-      setSubtasks([...subtasks, newSubtask.trim()]);
-      setNewSubtask("");
-    }
-  };
-
-  const removeSubtask = (index: number) => {
-    setSubtasks(subtasks.filter((_, i) => i !== index));
-  };
-
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
       <div className="w-full max-w-2xl rounded-2xl border border-zinc-800 bg-zinc-900 p-6 shadow-xl">
         <form onSubmit={handleSubmit}>
           <div className="mb-6">
-            <h2 className="text-2xl font-bold text-white">New Task</h2>
-            <p className="mt-1 text-sm text-zinc-400">Add a new task to your inbox</p>
+            <h2 className="text-2xl font-bold text-white">Edit Task</h2>
           </div>
 
           <div className="space-y-4">
@@ -186,52 +178,6 @@ export function NewTaskModal({ isOpen, onClose }: NewTaskModalProps) {
                 className="w-full rounded-lg border border-zinc-700 bg-zinc-800 px-4 py-2 text-white focus:border-purple-500 focus:outline-none focus:ring-1 focus:ring-purple-500"
               />
             </div>
-
-            <div>
-              <label className="mb-1 block text-sm font-medium text-zinc-300">
-                Subtasks
-              </label>
-              <div className="space-y-2">
-                {subtasks.map((subtask, index) => (
-                  <div key={index} className="flex items-center gap-2">
-                    <span className="flex-1 rounded-lg bg-zinc-800 px-3 py-1.5 text-sm text-zinc-300">
-                      {subtask}
-                    </span>
-                    <button
-                      type="button"
-                      onClick={() => removeSubtask(index)}
-                      className="text-zinc-500 hover:text-red-400"
-                    >
-                      <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                      </svg>
-                    </button>
-                  </div>
-                ))}
-                <div className="flex gap-2">
-                  <input
-                    type="text"
-                    value={newSubtask}
-                    onChange={(e) => setNewSubtask(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter") {
-                        e.preventDefault();
-                        addSubtask();
-                      }
-                    }}
-                    placeholder="Add a subtask..."
-                    className="flex-1 rounded-lg border border-zinc-700 bg-zinc-800 px-3 py-1.5 text-sm text-white placeholder-zinc-500 focus:border-purple-500 focus:outline-none focus:ring-1 focus:ring-purple-500"
-                  />
-                  <button
-                    type="button"
-                    onClick={addSubtask}
-                    className="rounded-lg bg-zinc-800 px-3 py-1.5 text-sm text-zinc-400 hover:bg-zinc-700 hover:text-zinc-300"
-                  >
-                    Add
-                  </button>
-                </div>
-              </div>
-            </div>
           </div>
 
           <div className="mt-6 flex justify-end gap-3">
@@ -244,10 +190,10 @@ export function NewTaskModal({ isOpen, onClose }: NewTaskModalProps) {
             </button>
             <button
               type="submit"
-              disabled={!title.trim() || createTask.isPending}
+              disabled={!title.trim() || updateTask.isPending}
               className="rounded-lg bg-gradient-to-r from-purple-500 to-pink-500 px-4 py-2 text-sm font-medium text-white transition-opacity hover:opacity-90 disabled:opacity-50"
             >
-              {createTask.isPending ? "Creating..." : "Create Task"}
+              {updateTask.isPending ? "Saving..." : "Save Changes"}
             </button>
           </div>
         </form>

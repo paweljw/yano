@@ -50,20 +50,22 @@ export function Navigation() {
                   <Link
                     href={item.href}
                     className={cn(
-                      "group relative rounded-lg px-4 py-2 text-sm font-medium transition-all",
+                      "group relative flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-all",
                       "hover:bg-zinc-800/50",
                       pathname === item.href
                         ? "text-white"
                         : "text-zinc-400 hover:text-zinc-200"
                     )}
                   >
-                    {item.label}
-                    <span className="ml-2 rounded bg-zinc-800 px-1.5 py-0.5 text-xs font-mono text-zinc-500 opacity-0 transition-opacity group-hover:opacity-100">
+                    <span className="relative">
+                      {item.label}
+                      {pathname === item.href && (
+                        <div className="absolute -bottom-3 left-1/2 h-0.5 w-8 -translate-x-1/2 rounded-full bg-gradient-to-r from-purple-500 to-pink-500" />
+                      )}
+                    </span>
+                    <span className="rounded bg-zinc-800 px-1.5 py-0.5 text-xs font-mono text-zinc-500 opacity-0 transition-opacity group-hover:opacity-100">
                       {item.shortcut}
                     </span>
-                    {pathname === item.href && (
-                      <div className="absolute bottom-0 left-1/2 h-0.5 w-8 -translate-x-1/2 translate-y-2 rounded-full bg-gradient-to-r from-purple-500 to-pink-500" />
-                    )}
                   </Link>
                 </li>
               ))}
@@ -78,8 +80,17 @@ export function Navigation() {
               + New Task
             </button>
             <div className="h-8 w-px bg-zinc-800" />
-            <div className="flex items-center gap-2">
-              <span className="text-sm text-zinc-400">{session.user.name || session.user.email}</span>
+            <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2">
+                {session.user.image && (
+                  <img
+                    src={session.user.image}
+                    alt={session.user.name || "User avatar"}
+                    className="h-8 w-8 rounded-full border border-zinc-700"
+                  />
+                )}
+                <span className="text-sm text-zinc-400">{session.user.name || session.user.email}</span>
+              </div>
               <button
                 onClick={() => signOut()}
                 className="rounded-lg p-2 text-zinc-400 transition-colors hover:bg-zinc-800/50 hover:text-zinc-200"

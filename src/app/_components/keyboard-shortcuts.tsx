@@ -44,6 +44,13 @@ export function KeyboardShortcuts() {
             router.push("/trash");
           }
           break;
+        case "c":
+          // Create new task shortcut
+          if (!e.metaKey && !e.ctrlKey) {
+            e.preventDefault();
+            window.dispatchEvent(new CustomEvent("openNewTask"));
+          }
+          break;
         case "n":
           // New task shortcut (Cmd/Ctrl + N)
           if (e.metaKey || e.ctrlKey) {

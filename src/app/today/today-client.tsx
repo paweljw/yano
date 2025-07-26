@@ -4,12 +4,15 @@ import { useState, useEffect } from "react";
 import { api } from "~/trpc/react";
 import { TaskCard } from "../_components/task-card";
 import { TaskTimer } from "../_components/task-timer";
+import { EditTaskModal } from "../_components/edit-task-modal";
 import { cn } from "~/lib/utils";
 import { TaskStatus } from "@prisma/client";
 
 export function TodayClient() {
   const { data: tasks, isLoading, refetch } = api.task.getToday.useQuery();
   const [selectedIndex, setSelectedIndex] = useState(0);
+  const [editingTask, setEditingTask] = useState<any>(null);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
   const startTask = api.task.start.useMutation({
     onSuccess: () => refetch(),
@@ -44,7 +47,7 @@ export function TodayClient() {
         case "y":
           e.preventDefault();
           const selectedTask = tasks[selectedIndex];
-          if (selectedTask && selectedTask.status === TaskStatus.TODAY) {
+          if (selectedTask && (selectedTask.status === TaskStatus.TODAY || selectedTask.status === TaskStatus.PAUSED)) {
             startTask.mutate({ id: selectedTask.id });
           }
           break;
@@ -60,6 +63,14 @@ export function TodayClient() {
           const taskToComplete = tasks[selectedIndex];
           if (taskToComplete && (taskToComplete.status === TaskStatus.IN_PROGRESS || taskToComplete.status === TaskStatus.PAUSED)) {
             completeTask.mutate({ id: taskToComplete.id });
+          }
+          break;
+        case "e":
+          e.preventDefault();
+          const selectedTaskForEdit = tasks[selectedIndex];
+          if (selectedTaskForEdit) {
+            setEditingTask(selectedTaskForEdit);
+            setIsEditModalOpen(true);
           }
           break;
       }
@@ -216,6 +227,15 @@ export function TodayClient() {
           </div>
         </div>
       )}
+      
+      <EditTaskModal
+        task={editingTask}
+        isOpen={isEditModalOpen}
+        onClose={() => {
+          setIsEditModalOpen(false);
+          setEditingTask(null);
+        }}
+      />
     </div>
   );
 }
