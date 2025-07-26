@@ -40,10 +40,12 @@ bun run db:studio    # Open Prisma Studio GUI
 
 ### Testing
 ```bash
-bun run test         # Run tests in watch mode
-bun run test:ui      # Run tests with UI
+bun run test         # Run tests with Vitest
+bun run test:ui      # Run tests with interactive UI
 bun run test:coverage # Run tests with coverage report
 ```
+
+**Important**: Use `bun run test` (which runs Vitest) instead of `bun test`. The native Bun test runner doesn't properly support the jsdom environment needed for React component testing.
 
 ## High-Level Architecture
 
@@ -76,4 +78,24 @@ bun run test:coverage # Run tests with coverage report
 5. **Type Safety**: The project uses strict TypeScript configuration with no implicit any
 
 ### Testing
-No test framework is currently configured. Tests would need to be set up if required.
+The project uses Vitest for testing with the following setup:
+- **Test Framework**: Vitest with React Testing Library
+- **Test Environment**: jsdom for component testing
+- **Test Files**: `*.test.ts` or `*.test.tsx` files
+- **Setup File**: `/src/test/setup.ts` - Loads testing utilities and mocks
+- **Config**: `/vitest.config.ts` - Configures jsdom environment and path aliases
+
+### YaNo Application Features
+The application is a task management system with unique features:
+- **Inbox Review**: Tasks start in inbox where users decide: ya (accept to today), no (trash), l8r (postpone)
+- **Time Tracking**: Tasks can be started, paused, and resumed with time tracking
+- **Midnight Reset**: Paused tasks move to Today, untouched Today tasks return to Inbox
+- **Keyboard Navigation**: Vim-style shortcuts (j/k for navigation, y/n/p for actions)
+- **Task Properties**: Priority (1-5 bars), Spiciness (1-5 peppers for difficulty), Deadlines, Subtasks
+- **Views**: Inbox, Today, Archive (completed), Trash (rejected)
+- **Restore Functionality**: Tasks can be restored from Archive/Trash back to Inbox
+
+### Known Issues & Solutions
+1. **Keyboard shortcuts in inputs**: Shortcuts are disabled when focus is in input/textarea/select elements
+2. **Edge Runtime**: Authentication logic must run in Node.js runtime, not Edge runtime
+3. **Test Runner**: Must use `bun run test` (Vitest) not `bun test` for React component tests
