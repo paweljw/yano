@@ -1,11 +1,13 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
+import { KeyboardHelpModal } from "./keyboard-help-modal";
 
 export function KeyboardShortcuts() {
   const router = useRouter();
   const pathname = usePathname();
+  const [isHelpOpen, setIsHelpOpen] = useState(false);
 
   useEffect(() => {
     const handleKeyPress = (e: KeyboardEvent) => {
@@ -59,6 +61,13 @@ export function KeyboardShortcuts() {
             window.dispatchEvent(new CustomEvent("openNewTask"));
           }
           break;
+        case "?":
+          // Show help modal
+          if (!e.metaKey && !e.ctrlKey) {
+            e.preventDefault();
+            setIsHelpOpen(true);
+          }
+          break;
       }
     };
 
@@ -66,5 +75,10 @@ export function KeyboardShortcuts() {
     return () => window.removeEventListener("keydown", handleKeyPress);
   }, [router, pathname]);
 
-  return null;
+  return (
+    <KeyboardHelpModal
+      isOpen={isHelpOpen}
+      onClose={() => setIsHelpOpen(false)}
+    />
+  );
 }

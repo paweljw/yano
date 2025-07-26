@@ -6,8 +6,52 @@ import type { Task } from "@prisma/client";
 
 export function TrashClient() {
   const { data: tasks, isLoading, refetch } = api.task.getTrash.useQuery();
+  const utils = api.useUtils();
+  
   const deleteTask = api.task.delete.useMutation({
-    onSuccess: () => refetch(),
+    onMutate: async ({ id }) => {
+      // Cancel any outgoing refetches
+      await utils.task.getTrash.cancel();
+      
+      // Snapshot the previous value
+      const previousTrash = utils.task.getTrash.getData();
+      
+      // Optimistically remove the task
+      utils.task.getTrash.setData(undefined, (old) => 
+        old?.filter(task => task.id !== id) ?? []
+      );
+      
+      // Return a context object with the snapshot
+      return { previousTrash };
+    },
+    onError: (err, newTodo, context) => {
+      // If the mutation fails, use the context to roll back
+      utils.task.getTrash.setData(undefined, context?.previousTrash);
+    },
+    onSettled: () => {
+      // Always refetch after error or success
+      utils.task.getTrash.invalidate();
+    },
+  });
+
+  const restoreTask = api.task.restore.useMutation({
+    onMutate: async ({ id }) => {
+      await utils.task.getTrash.cancel();
+      const previousTrash = utils.task.getTrash.getData();
+      
+      utils.task.getTrash.setData(undefined, (old) => 
+        old?.filter(task => task.id !== id) ?? []
+      );
+      
+      return { previousTrash };
+    },
+    onError: (err, newTodo, context) => {
+      utils.task.getTrash.setData(undefined, context?.previousTrash);
+    },
+    onSettled: () => {
+      utils.task.getTrash.invalidate();
+      utils.task.getInbox.invalidate();
+    },
   });
 
   if (isLoading) {
@@ -43,16 +87,24 @@ export function TrashClient() {
             <TaskCard
               task={{...task, subtasks: []}}
               actions={
-                <button
-                  onClick={() => {
-                    if (confirm("Permanently delete this task?")) {
-                      deleteTask.mutate({ id: task.id });
-                    }
-                  }}
-                  className="rounded-lg bg-red-600/20 px-3 py-1.5 text-sm font-medium text-red-400 transition-colors hover:bg-red-600/30"
-                >
-                  Delete
-                </button>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => restoreTask.mutate({ id: task.id })}
+                    className="rounded-lg bg-zinc-800 px-3 py-1.5 text-sm font-medium text-zinc-300 transition-colors hover:bg-zinc-700"
+                  >
+                    Restore
+                  </button>
+                  <button
+                    onClick={() => {
+                      if (confirm("Permanently delete this task?")) {
+                        deleteTask.mutate({ id: task.id });
+                      }
+                    }}
+                    className="rounded-lg bg-red-600/20 px-3 py-1.5 text-sm font-medium text-red-400 transition-colors hover:bg-red-600/30"
+                  >
+                    Delete
+                  </button>
+                </div>
               }
             />
           </div>

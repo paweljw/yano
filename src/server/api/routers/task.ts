@@ -464,6 +464,33 @@ export const taskRouter = createTRPCRouter({
       });
     }),
 
+  // Restore task to inbox
+  restore: protectedProcedure
+    .input(z.object({ id: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      const user = await ctx.db.user.findUnique({
+        where: { id: ctx.session.user.id },
+      });
+
+      const needsReset = user?.lastResetDate ? needsDailyReset(user.lastResetDate) : true;
+      if (needsReset) {
+        await performDailyReset(ctx.db, ctx.session.user.id);
+      }
+
+      return ctx.db.task.update({
+        where: {
+          id: input.id,
+          userId: ctx.session.user.id,
+        },
+        data: {
+          status: TaskStatus.INBOX,
+          completedAt: null,
+          lastStartedAt: null,
+          totalTimeSpent: 0,
+        },
+      });
+    }),
+
   // Manual daily reset (can be called by cron job)
   performDailyReset: protectedProcedure
     .mutation(async ({ ctx }) => {

@@ -42,6 +42,27 @@ export function NewTaskModal({ isOpen, onClose }: NewTaskModalProps) {
     }
   }, [isOpen]);
 
+  // Handle Cmd/Ctrl + Enter to submit and ESC to close
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (!isOpen) return;
+      
+      if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
+        e.preventDefault();
+        if (title.trim()) {
+          const formEvent = new Event('submit', { bubbles: true, cancelable: true });
+          document.querySelector('form')?.dispatchEvent(formEvent);
+        }
+      } else if (e.key === 'Escape') {
+        e.preventDefault();
+        onClose();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, title, onClose]);
+
   if (!isOpen) return null;
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -57,24 +78,6 @@ export function NewTaskModal({ isOpen, onClose }: NewTaskModalProps) {
       subtasks: subtasks.filter((s) => s.trim()),
     });
   };
-
-  // Handle Cmd/Ctrl + Enter to submit
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (!isOpen) return;
-      
-      if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
-        e.preventDefault();
-        if (title.trim()) {
-          const formEvent = new Event('submit', { bubbles: true, cancelable: true });
-          document.querySelector('form')?.dispatchEvent(formEvent);
-        }
-      }
-    };
-
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isOpen, title]);
 
   const addSubtask = () => {
     if (newSubtask.trim()) {

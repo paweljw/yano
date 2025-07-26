@@ -12,22 +12,85 @@ export function InboxClient() {
   const [editingTask, setEditingTask] = useState<any>(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
+  const utils = api.useUtils();
+
   const acceptTask = api.task.accept.useMutation({
-    onSuccess: () => refetch(),
+    onMutate: async ({ id }) => {
+      // Cancel any outgoing refetches
+      await utils.task.getInbox.cancel();
+      
+      // Snapshot the previous value
+      const previousInbox = utils.task.getInbox.getData();
+      
+      // Optimistically update by removing the task
+      utils.task.getInbox.setData(undefined, (old) => 
+        old?.filter(task => task.id !== id) ?? []
+      );
+      
+      // Return a context object with the snapshot
+      return { previousInbox };
+    },
+    onError: (err, newTodo, context) => {
+      // If the mutation fails, use the context to roll back
+      utils.task.getInbox.setData(undefined, context?.previousInbox);
+    },
+    onSettled: () => {
+      // Always refetch after error or success
+      utils.task.getInbox.invalidate();
+    },
   });
   
   const rejectTask = api.task.reject.useMutation({
-    onSuccess: () => refetch(),
+    onMutate: async ({ id }) => {
+      await utils.task.getInbox.cancel();
+      const previousInbox = utils.task.getInbox.getData();
+      
+      utils.task.getInbox.setData(undefined, (old) => 
+        old?.filter(task => task.id !== id) ?? []
+      );
+      
+      return { previousInbox };
+    },
+    onError: (err, newTodo, context) => {
+      utils.task.getInbox.setData(undefined, context?.previousInbox);
+    },
+    onSettled: () => {
+      utils.task.getInbox.invalidate();
+    },
   });
   
   const postponeTask = api.task.postpone.useMutation({
-    onSuccess: () => refetch(),
+    onMutate: async ({ id }) => {
+      await utils.task.getInbox.cancel();
+      const previousInbox = utils.task.getInbox.getData();
+      
+      utils.task.getInbox.setData(undefined, (old) => 
+        old?.filter(task => task.id !== id) ?? []
+      );
+      
+      return { previousInbox };
+    },
+    onError: (err, newTodo, context) => {
+      utils.task.getInbox.setData(undefined, context?.previousInbox);
+    },
+    onSettled: () => {
+      utils.task.getInbox.invalidate();
+    },
   });
 
   // Keyboard navigation
   useEffect(() => {
     const handleKeyPress = (e: KeyboardEvent) => {
       if (!tasks || tasks.length === 0) return;
+      
+      // Don't trigger shortcuts when typing in inputs
+      if (
+        e.target instanceof HTMLInputElement ||
+        e.target instanceof HTMLTextAreaElement ||
+        e.target instanceof HTMLSelectElement
+      ) {
+        return;
+      }
 
       switch (e.key.toLowerCase()) {
         case "j":
@@ -118,10 +181,7 @@ export function InboxClient() {
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-zinc-100">Inbox</h1>
         <p className="mt-2 text-zinc-400">
-          Review and plan your tasks • Use <kbd className="rounded bg-zinc-800 px-1.5 py-0.5 text-xs">j/k</kbd> to navigate, 
-          <kbd className="ml-1 rounded bg-zinc-800 px-1.5 py-0.5 text-xs">y</kbd> for ya,
-          <kbd className="ml-1 rounded bg-zinc-800 px-1.5 py-0.5 text-xs">n</kbd> for no,
-          <kbd className="ml-1 rounded bg-zinc-800 px-1.5 py-0.5 text-xs">p</kbd> for l8r
+          Review and plan your tasks • Press <kbd className="rounded bg-zinc-800 px-1.5 py-0.5 text-xs">?</kbd> for keyboard shortcuts
         </p>
       </div>
 

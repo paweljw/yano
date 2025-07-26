@@ -44,7 +44,7 @@ export function TaskCard({ task, isSelected, actions, onToggleSubtask, timer }: 
           <div className="flex items-start gap-3">
             <div className="flex flex-col items-center gap-1">
               {/* Priority indicator */}
-              <div className="flex flex-col gap-0.5">
+              <div className="flex flex-col-reverse gap-0.5">
                 {[...Array(5)].map((_, i) => (
                   <div
                     key={i}

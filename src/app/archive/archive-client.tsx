@@ -15,6 +15,35 @@ export function ArchiveClient() {
   );
 
   const tasks = data?.pages.flatMap((page) => page.tasks) ?? [];
+  const utils = api.useUtils();
+
+  const restoreTask = api.task.restore.useMutation({
+    onMutate: async ({ id }) => {
+      // Cancel any outgoing refetches
+      await utils.task.getArchive.cancel();
+      
+      // Optimistically remove the task from archive
+      utils.task.getArchive.setInfiniteData({ limit: 20 }, (old) => {
+        if (!old) return { pages: [], pageParams: [] };
+        return {
+          ...old,
+          pages: old.pages.map(page => ({
+            ...page,
+            tasks: page.tasks.filter(task => task.id !== id)
+          }))
+        };
+      });
+    },
+    onError: () => {
+      // Rollback on error
+      utils.task.getArchive.invalidate();
+    },
+    onSettled: () => {
+      // Always refetch after error or success
+      utils.task.getArchive.invalidate();
+      utils.task.getInbox.invalidate();
+    },
+  });
 
   if (isLoading) {
     return (
@@ -76,11 +105,19 @@ export function ArchiveClient() {
                   <TaskCard
                     task={task}
                     actions={
-                      <div className="flex items-center gap-2 text-xs text-zinc-500">
-                        <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                        Completed
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => restoreTask.mutate({ id: task.id })}
+                          className="rounded-lg bg-zinc-800 px-3 py-1.5 text-sm font-medium text-zinc-300 transition-colors hover:bg-zinc-700"
+                        >
+                          Restore
+                        </button>
+                        <div className="flex items-center gap-1 text-xs text-zinc-500">
+                          <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                          Completed
+                        </div>
                       </div>
                     }
                   />

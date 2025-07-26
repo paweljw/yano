@@ -13,27 +13,121 @@ export function TodayClient() {
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [editingTask, setEditingTask] = useState<any>(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  
+  const utils = api.useUtils();
 
   const startTask = api.task.start.useMutation({
-    onSuccess: () => refetch(),
+    onMutate: async ({ id }) => {
+      await utils.task.getToday.cancel();
+      const previousToday = utils.task.getToday.getData();
+      
+      // Optimistically update task status to IN_PROGRESS
+      utils.task.getToday.setData(undefined, (old) => 
+        old?.map(task => 
+          task.id === id 
+            ? { ...task, status: TaskStatus.IN_PROGRESS, lastStartedAt: new Date() }
+            : task
+        ) ?? []
+      );
+      
+      return { previousToday };
+    },
+    onError: (err, newTodo, context) => {
+      utils.task.getToday.setData(undefined, context?.previousToday);
+    },
+    onSettled: () => {
+      utils.task.getToday.invalidate();
+    },
   });
 
   const pauseTask = api.task.pause.useMutation({
-    onSuccess: () => refetch(),
+    onMutate: async ({ id }) => {
+      await utils.task.getToday.cancel();
+      const previousToday = utils.task.getToday.getData();
+      
+      // Optimistically update task status to PAUSED
+      utils.task.getToday.setData(undefined, (old) => 
+        old?.map(task => 
+          task.id === id 
+            ? { ...task, status: TaskStatus.PAUSED, lastStartedAt: null }
+            : task
+        ) ?? []
+      );
+      
+      return { previousToday };
+    },
+    onError: (err, newTodo, context) => {
+      utils.task.getToday.setData(undefined, context?.previousToday);
+    },
+    onSettled: () => {
+      utils.task.getToday.invalidate();
+    },
   });
 
   const completeTask = api.task.complete.useMutation({
-    onSuccess: () => refetch(),
+    onMutate: async ({ id }) => {
+      await utils.task.getToday.cancel();
+      const previousToday = utils.task.getToday.getData();
+      
+      // Optimistically remove the task (it's completed)
+      utils.task.getToday.setData(undefined, (old) => 
+        old?.filter(task => task.id !== id) ?? []
+      );
+      
+      return { previousToday };
+    },
+    onError: (err, newTodo, context) => {
+      utils.task.getToday.setData(undefined, context?.previousToday);
+    },
+    onSettled: () => {
+      utils.task.getToday.invalidate();
+    },
   });
 
   const toggleSubtask = api.task.toggleSubtask.useMutation({
-    onSuccess: () => refetch(),
+    onMutate: async ({ taskId, subtaskId }) => {
+      await utils.task.getToday.cancel();
+      const previousToday = utils.task.getToday.getData();
+      
+      // Optimistically toggle subtask completion
+      utils.task.getToday.setData(undefined, (old) => 
+        old?.map(task => 
+          task.id === taskId 
+            ? {
+                ...task,
+                subtasks: task.subtasks.map(subtask =>
+                  subtask.id === subtaskId
+                    ? { ...subtask, completed: !subtask.completed }
+                    : subtask
+                )
+              }
+            : task
+        ) ?? []
+      );
+      
+      return { previousToday };
+    },
+    onError: (err, newTodo, context) => {
+      utils.task.getToday.setData(undefined, context?.previousToday);
+    },
+    onSettled: () => {
+      utils.task.getToday.invalidate();
+    },
   });
 
   // Keyboard navigation
   useEffect(() => {
     const handleKeyPress = (e: KeyboardEvent) => {
       if (!tasks || tasks.length === 0) return;
+      
+      // Don't trigger shortcuts when typing in inputs
+      if (
+        e.target instanceof HTMLInputElement ||
+        e.target instanceof HTMLTextAreaElement ||
+        e.target instanceof HTMLSelectElement
+      ) {
+        return;
+      }
 
       switch (e.key.toLowerCase()) {
         case "j":
@@ -110,10 +204,7 @@ export function TodayClient() {
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-zinc-100">Today</h1>
         <p className="mt-2 text-zinc-400">
-          Your tasks for today • Use <kbd className="rounded bg-zinc-800 px-1.5 py-0.5 text-xs">j/k</kbd> to navigate,
-          <kbd className="ml-1 rounded bg-zinc-800 px-1.5 py-0.5 text-xs">y</kbd> to start,
-          <kbd className="ml-1 rounded bg-zinc-800 px-1.5 py-0.5 text-xs">p</kbd> to pause,
-          <kbd className="ml-1 rounded bg-zinc-800 px-1.5 py-0.5 text-xs">d</kbd> to mark done
+          Your tasks for today • Press <kbd className="rounded bg-zinc-800 px-1.5 py-0.5 text-xs">?</kbd> for keyboard shortcuts
         </p>
       </div>
 

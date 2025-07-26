@@ -46,6 +46,27 @@ export function EditTaskModal({ task, isOpen, onClose }: EditTaskModalProps) {
     },
   });
 
+  // Handle Cmd/Ctrl + Enter to submit and ESC to close
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (!isOpen) return;
+      
+      if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
+        e.preventDefault();
+        if (title.trim()) {
+          const formEvent = new Event('submit', { bubbles: true, cancelable: true });
+          document.querySelector('form')?.dispatchEvent(formEvent);
+        }
+      } else if (e.key === 'Escape') {
+        e.preventDefault();
+        onClose();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, title, onClose]);
+
   if (!isOpen || !task) return null;
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -61,24 +82,6 @@ export function EditTaskModal({ task, isOpen, onClose }: EditTaskModalProps) {
       deadline: deadline ? new Date(deadline) : null,
     });
   };
-
-  // Handle Cmd/Ctrl + Enter to submit
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (!isOpen) return;
-      
-      if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
-        e.preventDefault();
-        if (title.trim()) {
-          const formEvent = new Event('submit', { bubbles: true, cancelable: true });
-          document.querySelector('form')?.dispatchEvent(formEvent);
-        }
-      }
-    };
-
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isOpen, title]);
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
