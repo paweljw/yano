@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { auth } from "~/server/auth";
-import { StoreProvider } from "~/lib/store/store-provider";
+import { StoreProvider } from "~/lib/store/StoreProvider";
 
 interface PageWrapperProps {
   children: React.ReactNode;

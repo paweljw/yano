@@ -2,7 +2,7 @@
 
 import { SessionProvider } from "next-auth/react";
 import { type ReactNode } from "react";
-import { StoreProvider } from "~/lib/store/store-provider";
+import { StoreProvider } from "~/lib/store/StoreProvider";
 
 export function Providers({ children }: { children: ReactNode }) {
   return (

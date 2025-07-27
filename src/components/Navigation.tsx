@@ -5,7 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useSession, signOut } from "next-auth/react";
 import { cn } from "~/lib/utils";
-import { NewTaskModal } from "./new-task-modal";
+import { NewTaskModal } from "./NewTaskModal";
 import { UserImage } from "./UserImage";
 
 const navItems = [

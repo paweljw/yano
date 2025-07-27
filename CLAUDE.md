@@ -53,6 +53,11 @@ bun run test:coverage # Run tests with coverage report
 
 ## High-Level Architecture
 
+### File naming conventions
+
+- **Components**: files which export components should be named `ComponentName.tsx` (snake case)
+- **Utility functions/hooks**: files which export functions/hooks should be named `functionName.ts` or `useFunctionName.ts` (lower snake case)
+
 ### Directory Structure
 - `/src/app/` - Next.js App Router pages and API routes
   - `/api/auth/[...nextauth]/` - NextAuth.js API route

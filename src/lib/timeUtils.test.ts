@@ -1,15 +1,5 @@
 import { describe, it, expect } from "vitest";
-
-// Test the time formatting logic from TaskCard
-function formatTime(seconds: number): string {
-  const hours = Math.floor(seconds / 3600);
-  const minutes = Math.floor((seconds % 3600) / 60);
-
-  if (hours > 0) {
-    return `${hours}h ${minutes}m`;
-  }
-  return `${minutes}m`;
-}
+import { formatTime } from "./timeUtils";
 
 describe("Time Formatting", () => {
   it("should format seconds correctly", () => {

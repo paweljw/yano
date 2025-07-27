@@ -4,9 +4,9 @@ import { type Metadata } from "next";
 import { Geist } from "next/font/google";
 
 import { TRPCReactProvider } from "~/trpc/react";
-import { Navigation } from "./_components/navigation";
-import { KeyboardShortcuts } from "./_components/keyboard-shortcuts";
-import { Providers } from "./_components/providers";
+import { Navigation } from "../components/Navigation";
+import { KeyboardShortcuts } from "../components/KeyboardShortcuts";
+import { Providers } from "../components/Providers";
 
 export const metadata: Metadata = {
   title: "YaNo - Your Daily Task Planner",

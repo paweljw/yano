@@ -2,17 +2,17 @@
 
 import { useEffect, useState } from "react";
 import { observer } from "mobx-react-lite";
-import { useTaskStore } from "~/lib/store/store-provider";
+import { useTaskStore } from "~/lib/store/StoreProvider";
 import type { TaskStore } from "~/lib/store/task.store";
-import { TaskCard } from "~/app/_components/task-card";
-import { TaskTimer } from "~/app/_components/task-timer";
-import { EditTaskModal } from "./edit-task-modal-v2";
-import { useKeyboardNavigation } from "~/hooks/use-keyboard-navigation";
+import { TaskCard } from "~/components/TaskCard";
+import { TaskTimer } from "~/components/TaskTimer";
+import { EditTaskModal } from "./EditTaskModal";
+import { useKeyboardNavigation } from "~/hooks/useKeyboardNavigation";
 import { cn } from "~/lib/utils";
 import { TaskStatus } from "@prisma/client";
 import type { Task as PrismaTask, Subtask } from "@prisma/client";
-import { LoadingSpinner } from "./loading-spinner";
-import { EmptyState } from "./empty-state";
+import { LoadingSpinner } from "./LoadingSpinner";
+import { EmptyState } from "./EmptyState";
 
 type Task = PrismaTask & { subtasks: Subtask[] };
 

@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { render, screen } from "@testing-library/react";
-import { TaskCard } from "./task-card";
+import { TaskCard } from "./TaskCard";
 import { TaskStatus } from "@prisma/client";
 
 describe("TaskCard - Basic Tests", () => {

@@ -3,6 +3,7 @@
 import { type ReactNode } from "react";
 import { cn } from "~/lib/utils";
 import type { Task, Subtask } from "@prisma/client";
+import { formatTime } from "~/lib/timeUtils";
 
 interface TaskWithSubtasks extends Task {
   subtasks: Subtask[];
@@ -165,14 +166,4 @@ export function TaskCard({
       </div>
     </div>
   );
-}
-
-function formatTime(seconds: number): string {
-  const hours = Math.floor(seconds / 3600);
-  const minutes = Math.floor((seconds % 3600) / 60);
-
-  if (hours > 0) {
-    return `${hours}h ${minutes}m`;
-  }
-  return `${minutes}m`;
 }

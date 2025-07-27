@@ -1,5 +1,5 @@
-import { PageWrapper } from "~/components/page-wrapper";
-import { TaskList } from "~/components/task-list";
+import { PageWrapper } from "~/components/PageWrapper";
+import { TaskList } from "~/components/TaskList";
 
 export default async function InboxPage() {
   return (

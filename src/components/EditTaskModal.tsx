@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { observer } from "mobx-react-lite";
-import { useTaskStore } from "~/lib/store/store-provider";
+import { useTaskStore } from "~/lib/store/StoreProvider";
 import { api } from "~/trpc/react";
 import { cn } from "~/lib/utils";
 import type { Task } from "@prisma/client";
