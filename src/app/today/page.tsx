@@ -4,7 +4,7 @@ import { TodayClient } from "./today-client";
 
 export default async function TodayPage() {
   const session = await auth();
-  
+
   if (!session?.user) {
     redirect("/");
   }

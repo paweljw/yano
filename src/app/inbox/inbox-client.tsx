@@ -19,15 +19,16 @@ export function InboxClient() {
     onMutate: async ({ id }) => {
       // Cancel any outgoing refetches
       await utils.task.getInbox.cancel();
-      
+
       // Snapshot the previous value
       const previousInbox = utils.task.getInbox.getData();
-      
+
       // Optimistically update by removing the task
-      utils.task.getInbox.setData(undefined, (old) => 
-        old?.filter(task => task.id !== id) ?? []
+      utils.task.getInbox.setData(
+        undefined,
+        (old) => old?.filter((task) => task.id !== id) ?? [],
       );
-      
+
       // Return a context object with the snapshot
       return { previousInbox };
     },
@@ -40,16 +41,17 @@ export function InboxClient() {
       void utils.task.getInbox.invalidate();
     },
   });
-  
+
   const rejectTask = api.task.reject.useMutation({
     onMutate: async ({ id }) => {
       await utils.task.getInbox.cancel();
       const previousInbox = utils.task.getInbox.getData();
-      
-      utils.task.getInbox.setData(undefined, (old) => 
-        old?.filter(task => task.id !== id) ?? []
+
+      utils.task.getInbox.setData(
+        undefined,
+        (old) => old?.filter((task) => task.id !== id) ?? [],
       );
-      
+
       return { previousInbox };
     },
     onError: (err, newTodo, context) => {
@@ -59,16 +61,17 @@ export function InboxClient() {
       void utils.task.getInbox.invalidate();
     },
   });
-  
+
   const postponeTask = api.task.postpone.useMutation({
     onMutate: async ({ id }) => {
       await utils.task.getInbox.cancel();
       const previousInbox = utils.task.getInbox.getData();
-      
-      utils.task.getInbox.setData(undefined, (old) => 
-        old?.filter(task => task.id !== id) ?? []
+
+      utils.task.getInbox.setData(
+        undefined,
+        (old) => old?.filter((task) => task.id !== id) ?? [],
       );
-      
+
       return { previousInbox };
     },
     onError: (err, newTodo, context) => {
@@ -83,7 +86,7 @@ export function InboxClient() {
   useEffect(() => {
     const handleKeyPress = (e: KeyboardEvent) => {
       if (!tasks || tasks.length === 0) return;
-      
+
       // Don't trigger shortcuts when typing in inputs
       if (
         e.target instanceof HTMLInputElement ||
@@ -171,7 +174,9 @@ export function InboxClient() {
     return (
       <div className="flex h-full flex-col items-center justify-center p-8">
         <div className="mb-4 text-6xl">📥</div>
-        <h2 className="text-2xl font-semibold text-zinc-200">Your inbox is empty</h2>
+        <h2 className="text-2xl font-semibold text-zinc-200">
+          Your inbox is empty
+        </h2>
         <p className="mt-2 text-zinc-500">Create a new task to get started</p>
       </div>
     );
@@ -182,7 +187,9 @@ export function InboxClient() {
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-zinc-100">Inbox</h1>
         <p className="mt-2 text-zinc-400">
-          Review and plan your tasks • Press <kbd className="rounded bg-zinc-800 px-1.5 py-0.5 text-xs">?</kbd> for keyboard shortcuts
+          Review and plan your tasks • Press{" "}
+          <kbd className="rounded bg-zinc-800 px-1.5 py-0.5 text-xs">?</kbd> for
+          keyboard shortcuts
         </p>
       </div>
 
@@ -192,7 +199,8 @@ export function InboxClient() {
             key={task.id}
             className={cn(
               "relative transition-all",
-              selectedIndex === index && "ring-2 ring-purple-500 ring-offset-2 ring-offset-zinc-950 rounded-xl"
+              selectedIndex === index &&
+                "rounded-xl ring-2 ring-purple-500 ring-offset-2 ring-offset-zinc-950",
             )}
           >
             <TaskCard
@@ -224,7 +232,7 @@ export function InboxClient() {
           </div>
         ))}
       </div>
-      
+
       <EditTaskModal
         task={editingTask}
         isOpen={isEditModalOpen}

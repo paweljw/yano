@@ -9,7 +9,7 @@ export async function GET(_request: Request) {
     // For example, check for a secret header:
     const headersList = await headers();
     const _cronSecret = headersList.get("x-cron-secret");
-    
+
     // Uncomment in production:
     // if (cronSecret !== process.env.CRON_SECRET) {
     //   return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -18,19 +18,19 @@ export async function GET(_request: Request) {
     // For development/testing, we'll create a temporary session
     // In production, you'd have a system user or service account
     const session = await auth();
-    
+
     if (!session) {
       // For now, just return success even without auth
       // In production, implement proper service-to-service auth
-      return NextResponse.json({ 
-        success: true, 
-        message: "Daily reset skipped - no auth available" 
+      return NextResponse.json({
+        success: true,
+        message: "Daily reset skipped - no auth available",
       });
     }
 
     // Perform the reset for all users
     const result = await api.task.resetAllUsers();
-    
+
     return NextResponse.json({
       timestamp: new Date().toISOString(),
       ...result,
@@ -39,7 +39,7 @@ export async function GET(_request: Request) {
     console.error("Daily reset cron error:", error);
     return NextResponse.json(
       { error: "Internal server error" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

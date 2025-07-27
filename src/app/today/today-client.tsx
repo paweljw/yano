@@ -14,23 +14,29 @@ export function TodayClient() {
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  
+
   const utils = api.useUtils();
 
   const startTask = api.task.start.useMutation({
     onMutate: async ({ id }) => {
       await utils.task.getToday.cancel();
       const previousToday = utils.task.getToday.getData();
-      
+
       // Optimistically update task status to IN_PROGRESS
-      utils.task.getToday.setData(undefined, (old) => 
-        old?.map(task => 
-          task.id === id 
-            ? { ...task, status: TaskStatus.IN_PROGRESS, lastStartedAt: new Date() }
-            : task
-        ) ?? []
+      utils.task.getToday.setData(
+        undefined,
+        (old) =>
+          old?.map((task) =>
+            task.id === id
+              ? {
+                  ...task,
+                  status: TaskStatus.IN_PROGRESS,
+                  lastStartedAt: new Date(),
+                }
+              : task,
+          ) ?? [],
       );
-      
+
       return { previousToday };
     },
     onError: (err, newTodo, context) => {
@@ -45,16 +51,18 @@ export function TodayClient() {
     onMutate: async ({ id }) => {
       await utils.task.getToday.cancel();
       const previousToday = utils.task.getToday.getData();
-      
+
       // Optimistically update task status to PAUSED
-      utils.task.getToday.setData(undefined, (old) => 
-        old?.map(task => 
-          task.id === id 
-            ? { ...task, status: TaskStatus.PAUSED, lastStartedAt: null }
-            : task
-        ) ?? []
+      utils.task.getToday.setData(
+        undefined,
+        (old) =>
+          old?.map((task) =>
+            task.id === id
+              ? { ...task, status: TaskStatus.PAUSED, lastStartedAt: null }
+              : task,
+          ) ?? [],
       );
-      
+
       return { previousToday };
     },
     onError: (err, newTodo, context) => {
@@ -69,12 +77,13 @@ export function TodayClient() {
     onMutate: async ({ id }) => {
       await utils.task.getToday.cancel();
       const previousToday = utils.task.getToday.getData();
-      
+
       // Optimistically remove the task (it's completed)
-      utils.task.getToday.setData(undefined, (old) => 
-        old?.filter(task => task.id !== id) ?? []
+      utils.task.getToday.setData(
+        undefined,
+        (old) => old?.filter((task) => task.id !== id) ?? [],
       );
-      
+
       return { previousToday };
     },
     onError: (err, newTodo, context) => {
@@ -89,23 +98,25 @@ export function TodayClient() {
     onMutate: async ({ taskId, subtaskId }) => {
       await utils.task.getToday.cancel();
       const previousToday = utils.task.getToday.getData();
-      
+
       // Optimistically toggle subtask completion
-      utils.task.getToday.setData(undefined, (old) => 
-        old?.map(task => 
-          task.id === taskId 
-            ? {
-                ...task,
-                subtasks: task.subtasks.map(subtask =>
-                  subtask.id === subtaskId
-                    ? { ...subtask, completed: !subtask.completed }
-                    : subtask
-                )
-              }
-            : task
-        ) ?? []
+      utils.task.getToday.setData(
+        undefined,
+        (old) =>
+          old?.map((task) =>
+            task.id === taskId
+              ? {
+                  ...task,
+                  subtasks: task.subtasks.map((subtask) =>
+                    subtask.id === subtaskId
+                      ? { ...subtask, completed: !subtask.completed }
+                      : subtask,
+                  ),
+                }
+              : task,
+          ) ?? [],
       );
-      
+
       return { previousToday };
     },
     onError: (err, newTodo, context) => {
@@ -120,7 +131,7 @@ export function TodayClient() {
   useEffect(() => {
     const handleKeyPress = (e: KeyboardEvent) => {
       if (!tasks || tasks.length === 0) return;
-      
+
       // Don't trigger shortcuts when typing in inputs
       if (
         e.target instanceof HTMLInputElement ||
@@ -142,7 +153,11 @@ export function TodayClient() {
         case "y":
           e.preventDefault();
           const selectedTask = tasks[selectedIndex];
-          if (selectedTask && (selectedTask.status === TaskStatus.TODAY || selectedTask.status === TaskStatus.PAUSED)) {
+          if (
+            selectedTask &&
+            (selectedTask.status === TaskStatus.TODAY ||
+              selectedTask.status === TaskStatus.PAUSED)
+          ) {
             startTask.mutate({ id: selectedTask.id });
           }
           break;
@@ -156,7 +171,11 @@ export function TodayClient() {
         case "d":
           e.preventDefault();
           const taskToComplete = tasks[selectedIndex];
-          if (taskToComplete && (taskToComplete.status === TaskStatus.IN_PROGRESS || taskToComplete.status === TaskStatus.PAUSED)) {
+          if (
+            taskToComplete &&
+            (taskToComplete.status === TaskStatus.IN_PROGRESS ||
+              taskToComplete.status === TaskStatus.PAUSED)
+          ) {
             completeTask.mutate({ id: taskToComplete.id });
           }
           break;
@@ -187,16 +206,20 @@ export function TodayClient() {
     return (
       <div className="flex h-full flex-col items-center justify-center p-8">
         <div className="mb-4 text-6xl">📅</div>
-        <h2 className="text-2xl font-semibold text-zinc-200">No tasks for today</h2>
+        <h2 className="text-2xl font-semibold text-zinc-200">
+          No tasks for today
+        </h2>
         <p className="mt-2 text-zinc-500">Visit your inbox to plan your day</p>
       </div>
     );
   }
 
   // Group tasks by status
-  const inProgressTasks = tasks.filter(t => t.status === TaskStatus.IN_PROGRESS);
-  const pausedTasks = tasks.filter(t => t.status === TaskStatus.PAUSED);
-  const todoTasks = tasks.filter(t => t.status === TaskStatus.TODAY);
+  const inProgressTasks = tasks.filter(
+    (t) => t.status === TaskStatus.IN_PROGRESS,
+  );
+  const pausedTasks = tasks.filter((t) => t.status === TaskStatus.PAUSED);
+  const todoTasks = tasks.filter((t) => t.status === TaskStatus.TODAY);
 
   const orderedTasks = [...inProgressTasks, ...pausedTasks, ...todoTasks];
 
@@ -205,28 +228,35 @@ export function TodayClient() {
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-zinc-100">Today</h1>
         <p className="mt-2 text-zinc-400">
-          Your tasks for today • Press <kbd className="rounded bg-zinc-800 px-1.5 py-0.5 text-xs">?</kbd> for keyboard shortcuts
+          Your tasks for today • Press{" "}
+          <kbd className="rounded bg-zinc-800 px-1.5 py-0.5 text-xs">?</kbd> for
+          keyboard shortcuts
         </p>
       </div>
 
       {inProgressTasks.length > 0 && (
         <div className="mb-8">
-          <h2 className="mb-4 text-lg font-semibold text-zinc-300">In Progress</h2>
+          <h2 className="mb-4 text-lg font-semibold text-zinc-300">
+            In Progress
+          </h2>
           <div className="space-y-4">
             {inProgressTasks.map((task, _index) => {
-              const globalIndex = orderedTasks.findIndex(t => t.id === task.id);
+              const globalIndex = orderedTasks.findIndex(
+                (t) => t.id === task.id,
+              );
               return (
                 <div
                   key={task.id}
                   className={cn(
                     "relative transition-all",
-                    selectedIndex === globalIndex && "ring-2 ring-purple-500 ring-offset-2 ring-offset-zinc-950 rounded-xl"
+                    selectedIndex === globalIndex &&
+                      "rounded-xl ring-2 ring-purple-500 ring-offset-2 ring-offset-zinc-950",
                   )}
                 >
                   <TaskCard
                     task={task}
                     isSelected={selectedIndex === globalIndex}
-                    onToggleSubtask={(subtaskId) => 
+                    onToggleSubtask={(subtaskId) =>
                       toggleSubtask.mutate({ taskId: task.id, subtaskId })
                     }
                     timer={
@@ -252,19 +282,22 @@ export function TodayClient() {
           <h2 className="mb-4 text-lg font-semibold text-zinc-300">Paused</h2>
           <div className="space-y-4">
             {pausedTasks.map((task) => {
-              const globalIndex = orderedTasks.findIndex(t => t.id === task.id);
+              const globalIndex = orderedTasks.findIndex(
+                (t) => t.id === task.id,
+              );
               return (
                 <div
                   key={task.id}
                   className={cn(
-                    "relative transition-all opacity-75",
-                    selectedIndex === globalIndex && "ring-2 ring-purple-500 ring-offset-2 ring-offset-zinc-950 rounded-xl opacity-100"
+                    "relative opacity-75 transition-all",
+                    selectedIndex === globalIndex &&
+                      "rounded-xl opacity-100 ring-2 ring-purple-500 ring-offset-2 ring-offset-zinc-950",
                   )}
                 >
                   <TaskCard
                     task={task}
                     isSelected={selectedIndex === globalIndex}
-                    onToggleSubtask={(subtaskId) => 
+                    onToggleSubtask={(subtaskId) =>
                       toggleSubtask.mutate({ taskId: task.id, subtaskId })
                     }
                     timer={
@@ -289,19 +322,22 @@ export function TodayClient() {
           <h2 className="mb-4 text-lg font-semibold text-zinc-300">To Do</h2>
           <div className="space-y-4">
             {todoTasks.map((task) => {
-              const globalIndex = orderedTasks.findIndex(t => t.id === task.id);
+              const globalIndex = orderedTasks.findIndex(
+                (t) => t.id === task.id,
+              );
               return (
                 <div
                   key={task.id}
                   className={cn(
                     "relative transition-all",
-                    selectedIndex === globalIndex && "ring-2 ring-purple-500 ring-offset-2 ring-offset-zinc-950 rounded-xl"
+                    selectedIndex === globalIndex &&
+                      "rounded-xl ring-2 ring-purple-500 ring-offset-2 ring-offset-zinc-950",
                   )}
                 >
                   <TaskCard
                     task={task}
                     isSelected={selectedIndex === globalIndex}
-                    onToggleSubtask={(subtaskId) => 
+                    onToggleSubtask={(subtaskId) =>
                       toggleSubtask.mutate({ taskId: task.id, subtaskId })
                     }
                     actions={
@@ -319,7 +355,7 @@ export function TodayClient() {
           </div>
         </div>
       )}
-      
+
       <EditTaskModal
         task={editingTask}
         isOpen={isEditModalOpen}

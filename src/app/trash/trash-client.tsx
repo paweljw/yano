@@ -6,20 +6,21 @@ import { TaskCard } from "../_components/task-card";
 export function TrashClient() {
   const { data: tasks, isLoading } = api.task.getTrash.useQuery();
   const utils = api.useUtils();
-  
+
   const deleteTask = api.task.delete.useMutation({
     onMutate: async ({ id }) => {
       // Cancel any outgoing refetches
       await utils.task.getTrash.cancel();
-      
+
       // Snapshot the previous value
       const previousTrash = utils.task.getTrash.getData();
-      
+
       // Optimistically remove the task
-      utils.task.getTrash.setData(undefined, (old) => 
-        old?.filter(task => task.id !== id) ?? []
+      utils.task.getTrash.setData(
+        undefined,
+        (old) => old?.filter((task) => task.id !== id) ?? [],
       );
-      
+
       // Return a context object with the snapshot
       return { previousTrash };
     },
@@ -37,11 +38,12 @@ export function TrashClient() {
     onMutate: async ({ id }) => {
       await utils.task.getTrash.cancel();
       const previousTrash = utils.task.getTrash.getData();
-      
-      utils.task.getTrash.setData(undefined, (old) => 
-        old?.filter(task => task.id !== id) ?? []
+
+      utils.task.getTrash.setData(
+        undefined,
+        (old) => old?.filter((task) => task.id !== id) ?? [],
       );
-      
+
       return { previousTrash };
     },
     onError: (err, newTodo, context) => {
@@ -82,9 +84,12 @@ export function TrashClient() {
 
       <div className="space-y-4">
         {tasks.map((task) => (
-          <div key={task.id} className="opacity-50 transition-opacity hover:opacity-75">
+          <div
+            key={task.id}
+            className="opacity-50 transition-opacity hover:opacity-75"
+          >
             <TaskCard
-              task={{...task, subtasks: []}}
+              task={{ ...task, subtasks: [] }}
               actions={
                 <div className="flex items-center gap-2">
                   <button
