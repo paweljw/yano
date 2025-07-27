@@ -9,7 +9,7 @@ const StoreContext = createContext<RootStore | null>(null);
 
 export function StoreProvider({ children }: { children: ReactNode }) {
   const storeRef = useRef<RootStore>();
-  
+
   if (!storeRef.current) {
     storeRef.current = createRootStore();
     storeRef.current.setApi(api);

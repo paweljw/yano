@@ -7,7 +7,10 @@ interface PageWrapperProps {
   requireAuth?: boolean;
 }
 
-export async function PageWrapper({ children, requireAuth = true }: PageWrapperProps) {
+export async function PageWrapper({
+  children,
+  requireAuth = true,
+}: PageWrapperProps) {
   if (requireAuth) {
     const session = await auth();
     if (!session?.user) {

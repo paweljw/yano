@@ -106,5 +106,5 @@ When the user requests that you implement a Linear task, assume the following:
 - **Think and work hard**: The user expects you to deliver a complete, end-to-end solution to the task in a self-contained pull request
 - **Move the task to In progress:** Update the status of the Linear task to In progress when you start working
 - **Open a pull request:** After completing implementation of a task, open a pull request on GitHub, using the branch name you got from linear
-- **Produce high-quality code:** make sure that linters and tests, as specified in the GitHub Actions workflow, pass.
+- **Produce high-quality code:** make sure that linters and tests, as specified in the GitHub Actions workflow, pass. In particular make sure that `bun run check` and `bun run format:check` pass.
 - **Be independent:** Do your own research and make smart architecture decisions. Only ask the user for input when you need something you can't get yourself, such as an API key for an integration, or when you're making a decision that will change the direction of the product.

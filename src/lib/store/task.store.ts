@@ -87,10 +87,11 @@ export const TaskStoreModel = types
 
     get todayTasks() {
       return Array.from(self.tasks.values())
-        .filter((task) =>
-          task.status === TaskStatus.TODAY ||
-          task.status === TaskStatus.IN_PROGRESS ||
-          task.status === TaskStatus.PAUSED,
+        .filter(
+          (task) =>
+            task.status === TaskStatus.TODAY ||
+            task.status === TaskStatus.IN_PROGRESS ||
+            task.status === TaskStatus.PAUSED,
         )
         .sort((a, b) => {
           const statusOrder: Record<string, number> = {
@@ -161,7 +162,7 @@ export const TaskStoreModel = types
 
     const addTask = (taskData: Task & { subtasks?: Subtask[] }) => {
       const { subtasks, ...task } = taskData;
-      
+
       // Add subtasks first
       if (subtasks) {
         subtasks.forEach((subtask) => {
@@ -212,7 +213,10 @@ export const TaskStoreModel = types
         const tasks = yield api.task.getInbox.query();
         tasks.forEach((task: Task & { subtasks: Subtask[] }) => addTask(task));
       } catch (error) {
-        setError("inbox", error instanceof Error ? error.message : "Failed to load inbox");
+        setError(
+          "inbox",
+          error instanceof Error ? error.message : "Failed to load inbox",
+        );
       } finally {
         setLoading("inbox", false);
       }
@@ -225,7 +229,10 @@ export const TaskStoreModel = types
         const tasks = yield api.task.getToday.query();
         tasks.forEach((task: Task & { subtasks: Subtask[] }) => addTask(task));
       } catch (error) {
-        setError("today", error instanceof Error ? error.message : "Failed to load today");
+        setError(
+          "today",
+          error instanceof Error ? error.message : "Failed to load today",
+        );
       } finally {
         setLoading("today", false);
       }
@@ -236,10 +243,15 @@ export const TaskStoreModel = types
       setError("archive", null);
       try {
         const result = yield api.task.getArchive.query({ limit: 20, cursor });
-        result.tasks.forEach((task: Task & { subtasks: Subtask[] }) => addTask(task));
+        result.tasks.forEach((task: Task & { subtasks: Subtask[] }) =>
+          addTask(task),
+        );
         return result.nextCursor;
       } catch (error) {
-        setError("archive", error instanceof Error ? error.message : "Failed to load archive");
+        setError(
+          "archive",
+          error instanceof Error ? error.message : "Failed to load archive",
+        );
         return null;
       } finally {
         setLoading("archive", false);
@@ -253,7 +265,10 @@ export const TaskStoreModel = types
         const tasks = yield api.task.getTrash.query();
         tasks.forEach((task: Task) => addTask({ ...task, subtasks: [] }));
       } catch (error) {
-        setError("trash", error instanceof Error ? error.message : "Failed to load trash");
+        setError(
+          "trash",
+          error instanceof Error ? error.message : "Failed to load trash",
+        );
       } finally {
         setLoading("trash", false);
       }
@@ -409,7 +424,10 @@ export const TaskStoreModel = types
       }
     });
 
-    const toggleSubtaskMutation = flow(function* (taskId: string, subtaskId: string) {
+    const toggleSubtaskMutation = flow(function* (
+      taskId: string,
+      subtaskId: string,
+    ) {
       const subtask = self.subtasks.get(subtaskId);
       if (!subtask) return;
 

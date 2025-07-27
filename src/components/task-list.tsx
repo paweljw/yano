@@ -88,9 +88,11 @@ export const TaskList = observer(function TaskList({
           onStart: (task: Task) =>
             task.status === TaskStatus.TODAY && taskStore.startTask(task.id),
           onPause: (task: Task) =>
-            task.status === TaskStatus.IN_PROGRESS && taskStore.pauseTask(task.id),
+            task.status === TaskStatus.IN_PROGRESS &&
+            taskStore.pauseTask(task.id),
           onComplete: (task: Task) =>
-            (task.status === TaskStatus.IN_PROGRESS || task.status === TaskStatus.PAUSED) &&
+            (task.status === TaskStatus.IN_PROGRESS ||
+              task.status === TaskStatus.PAUSED) &&
             taskStore.completeTask(task.id),
         };
       default:
@@ -116,7 +118,9 @@ export const TaskList = observer(function TaskList({
     return (
       <div className="flex h-full flex-col items-center justify-center p-8">
         <div className="mb-4 text-6xl">❌</div>
-        <h2 className="text-2xl font-semibold text-zinc-200">Error loading {view}</h2>
+        <h2 className="text-2xl font-semibold text-zinc-200">
+          Error loading {view}
+        </h2>
         <p className="mt-2 text-zinc-500">{error}</p>
       </div>
     );
@@ -128,7 +132,9 @@ export const TaskList = observer(function TaskList({
 
   // Render different layouts based on view
   if (view === "today") {
-    const inProgressTasks = tasks.filter((t) => t.status === TaskStatus.IN_PROGRESS);
+    const inProgressTasks = tasks.filter(
+      (t) => t.status === TaskStatus.IN_PROGRESS,
+    );
     const pausedTasks = tasks.filter((t) => t.status === TaskStatus.PAUSED);
     const todoTasks = tasks.filter((t) => t.status === TaskStatus.TODAY);
 
@@ -235,8 +241,9 @@ export const TaskList = observer(function TaskList({
               task={task}
               isSelected={selectedIndex === index}
               onToggleSubtask={
-                (view === "inbox" || view === "today")
-                  ? (subtaskId) => taskStore.toggleSubtaskMutation(task.id, subtaskId)
+                view === "inbox" || view === "today"
+                  ? (subtaskId) =>
+                      taskStore.toggleSubtaskMutation(task.id, subtaskId)
                   : undefined
               }
               actions={renderTaskActions(task, view, taskStore)}
@@ -277,7 +284,9 @@ function TaskSection({
   renderActions,
 }: TaskSectionProps) {
   const allTasks = tasks;
-  const globalIndexMap = new Map(allTasks.map((task, index) => [task.id, index]));
+  const globalIndexMap = new Map(
+    allTasks.map((task, index) => [task.id, index]),
+  );
 
   return (
     <div className="mb-8">
@@ -299,7 +308,9 @@ function TaskSection({
                 task={task}
                 isSelected={selectedIndex === globalIndex}
                 onToggleSubtask={
-                  onToggleSubtask ? (subtaskId) => onToggleSubtask(task.id, subtaskId) : undefined
+                  onToggleSubtask
+                    ? (subtaskId) => onToggleSubtask(task.id, subtaskId)
+                    : undefined
                 }
                 timer={renderTimer?.(task)}
                 actions={renderActions?.(task)}
