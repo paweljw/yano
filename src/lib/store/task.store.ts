@@ -1,6 +1,10 @@
 import { types, flow } from "mobx-state-tree";
 import type { Task, Subtask } from "@prisma/client";
 import { TaskStatus } from "@prisma/client";
+import type { createTRPCClient } from "@trpc/client";
+import type { AppRouter } from "~/server/api/root";
+
+type TRPCApi = ReturnType<typeof createTRPCClient<AppRouter>>;
 
 export const SubtaskModel = types.model("Subtask", {
   id: types.identifier,
@@ -61,6 +65,9 @@ export const TaskStoreModel = types
     isLoading: types.map(types.boolean),
     errors: types.map(types.string),
   })
+  .volatile(() => ({
+    api: null as TRPCApi | null,
+  }))
   .views((self) => ({
     get inboxTasks() {
       const now = new Date();
@@ -137,10 +144,8 @@ export const TaskStoreModel = types
     },
   }))
   .actions((self) => {
-    let api: TRPCApi;
-
     const setApi = (trpcApi: TRPCApi) => {
-      api = trpcApi;
+      self.api = trpcApi;
     };
 
     const setLoading = (view: string, loading: boolean) => {
@@ -205,8 +210,9 @@ export const TaskStoreModel = types
       setLoading("inbox", true);
       setError("inbox", null);
       try {
-        const tasks = yield api.task.getInbox.query();
-        tasks.forEach((task: Task & { subtasks: Subtask[] }) => addTask(task));
+        if (!self.api) throw new Error("API not initialized");
+        const tasks = (yield self.api.task.getInbox.query()) as Array<Task & { subtasks: Subtask[] }>;
+        tasks.forEach((task) => addTask(task));
       } catch (error) {
         setError(
           "inbox",
@@ -221,8 +227,9 @@ export const TaskStoreModel = types
       setLoading("today", true);
       setError("today", null);
       try {
-        const tasks = yield api.task.getToday.query();
-        tasks.forEach((task: Task & { subtasks: Subtask[] }) => addTask(task));
+        if (!self.api) throw new Error("API not initialized");
+        const tasks = (yield self.api.task.getToday.query()) as Array<Task & { subtasks: Subtask[] }>;
+        tasks.forEach((task) => addTask(task));
       } catch (error) {
         setError(
           "today",
@@ -237,10 +244,9 @@ export const TaskStoreModel = types
       setLoading("archive", true);
       setError("archive", null);
       try {
-        const result = yield api.task.getArchive.query({ limit: 20, cursor });
-        result.tasks.forEach((task: Task & { subtasks: Subtask[] }) =>
-          addTask(task),
-        );
+        if (!self.api) throw new Error("API not initialized");
+        const result = (yield self.api.task.getArchive.query({ limit: 20, cursor })) as { tasks: Array<Task & { subtasks: Subtask[] }>; nextCursor: string | null };
+        result.tasks.forEach((task) => addTask(task));
         return result.nextCursor;
       } catch (error) {
         setError(
@@ -257,8 +263,9 @@ export const TaskStoreModel = types
       setLoading("trash", true);
       setError("trash", null);
       try {
-        const tasks = yield api.task.getTrash.query();
-        tasks.forEach((task: Task) => addTask({ ...task, subtasks: [] }));
+        if (!self.api) throw new Error("API not initialized");
+        const tasks = (yield self.api.task.getTrash.query()) as Task[];
+        tasks.forEach((task) => addTask({ ...task, subtasks: [] }));
       } catch (error) {
         setError(
           "trash",
@@ -283,7 +290,8 @@ export const TaskStoreModel = types
       });
 
       try {
-        yield api.task.accept.mutate({ id: taskId });
+        if (!self.api) throw new Error("API not initialized");
+        yield self.api.task.accept.mutate({ id: taskId });
       } catch (error) {
         // Rollback on error
         updateTask(taskId, {
@@ -308,7 +316,8 @@ export const TaskStoreModel = types
       });
 
       try {
-        yield api.task.reject.mutate({ id: taskId });
+        if (!self.api) throw new Error("API not initialized");
+        yield self.api.task.reject.mutate({ id: taskId });
       } catch (error) {
         // Rollback on error
         updateTask(taskId, {
@@ -334,7 +343,8 @@ export const TaskStoreModel = types
       });
 
       try {
-        yield api.task.postpone.mutate({ id: taskId });
+        if (!self.api) throw new Error("API not initialized");
+        yield self.api.task.postpone.mutate({ id: taskId });
       } catch (error) {
         // Rollback on error
         updateTask(taskId, {
@@ -359,7 +369,8 @@ export const TaskStoreModel = types
       });
 
       try {
-        yield api.task.start.mutate({ id: taskId });
+        if (!self.api) throw new Error("API not initialized");
+        yield self.api.task.start.mutate({ id: taskId });
       } catch (error) {
         // Rollback on error
         updateTask(taskId, {
@@ -383,7 +394,8 @@ export const TaskStoreModel = types
       });
 
       try {
-        yield api.task.pause.mutate({ id: taskId });
+        if (!self.api) throw new Error("API not initialized");
+        yield self.api.task.pause.mutate({ id: taskId });
       } catch (error) {
         // Rollback on error
         updateTask(taskId, {
@@ -408,7 +420,8 @@ export const TaskStoreModel = types
       });
 
       try {
-        yield api.task.complete.mutate({ id: taskId });
+        if (!self.api) throw new Error("API not initialized");
+        yield self.api.task.complete.mutate({ id: taskId });
       } catch (error) {
         // Rollback on error
         updateTask(taskId, {
@@ -432,7 +445,8 @@ export const TaskStoreModel = types
       toggleSubtask(subtaskId);
 
       try {
-        yield api.task.toggleSubtask.mutate({ taskId, subtaskId });
+        if (!self.api) throw new Error("API not initialized");
+        yield self.api.task.toggleSubtask.mutate({ taskId, subtaskId });
       } catch (error) {
         // Rollback on error
         subtask.completed = previousCompleted;
@@ -454,7 +468,8 @@ export const TaskStoreModel = types
       });
 
       try {
-        yield api.task.restore.mutate({ id: taskId });
+        if (!self.api) throw new Error("API not initialized");
+        yield self.api.task.restore.mutate({ id: taskId });
       } catch (error) {
         // Rollback on error
         updateTask(taskId, {
@@ -476,7 +491,8 @@ export const TaskStoreModel = types
       removeTask(taskId);
 
       try {
-        yield api.task.delete.mutate({ id: taskId });
+        if (!self.api) throw new Error("API not initialized");
+        yield self.api.task.delete.mutate({ id: taskId });
       } catch (error) {
         // Rollback - re-add task and subtasks
         subtasksData.forEach((subtask) => self.subtasks.put(subtask));
@@ -515,7 +531,7 @@ export const RootStoreModel = types
     taskStore: TaskStoreModel,
   })
   .actions((self) => ({
-    setApi(api: any) {
+    setApi(api: TRPCApi) {
       self.taskStore.setApi(api);
     },
   }));

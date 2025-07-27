@@ -2,6 +2,10 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Maintaining the CLAUDE.md file
+
+If you create new features or make significant refactors, make sure this file reflects reality. Update it as part of your work.
+
 ## Project Overview
 
 This is a T3 Stack project using:
