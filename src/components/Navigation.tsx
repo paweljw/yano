@@ -154,7 +154,9 @@ export function Navigation() {
           aria-labelledby="mobile-menu-title"
         >
           <div className="container mx-auto px-4 py-4">
-            <h2 id="mobile-menu-title" className="sr-only">Mobile Menu</h2>
+            <h2 id="mobile-menu-title" className="sr-only">
+              Mobile Menu
+            </h2>
             <ul className="space-y-2">
               {navItems.map((item) => (
                 <li key={item.href}>
