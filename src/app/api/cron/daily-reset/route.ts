@@ -8,7 +8,7 @@ export async function GET(_request: Request) {
     // In production, you should verify this is called by your cron service
     // For example, check for a secret header:
     const headersList = await headers();
-    const _cronSecret = headersList.get("x-cron-secret");
+    headersList.get("x-cron-secret");
 
     // Uncomment in production:
     // if (cronSecret !== process.env.CRON_SECRET) {

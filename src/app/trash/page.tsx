@@ -1,13 +1,19 @@
-import { redirect } from "next/navigation";
-import { auth } from "~/server/auth";
-import { TrashClient } from "./trash-client";
+import { PageWrapper } from "~/components/PageWrapper";
+import { TaskList } from "~/components/TaskList";
 
 export default async function TrashPage() {
-  const session = await auth();
-
-  if (!session?.user) {
-    redirect("/");
-  }
-
-  return <TrashClient />;
+  return (
+    <PageWrapper>
+      <TaskList
+        view="trash"
+        title="Trash"
+        description="Rejected tasks"
+        emptyState={{
+          icon: "🗑️",
+          title: "Trash is empty",
+          message: "Tasks you reject will appear here",
+        }}
+      />
+    </PageWrapper>
+  );
 }

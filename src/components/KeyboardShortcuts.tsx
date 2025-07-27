@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
-import { KeyboardHelpModal } from "./keyboard-help-modal";
+import { KeyboardHelpModal } from "./KeyboardHelpModal";
 
 export function KeyboardShortcuts() {
   const router = useRouter();

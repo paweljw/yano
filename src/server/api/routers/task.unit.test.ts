@@ -23,7 +23,6 @@ describe("Task Router - Unit Tests", () => {
     });
 
     it("should return true for different days", () => {
-      const _lastReset = new Date("2024-01-14T23:59:59Z");
       // This test will use actual current date, so we'll just check the logic
       const yesterday = new Date();
       yesterday.setDate(yesterday.getDate() - 1);

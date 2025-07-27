@@ -1,6 +1,8 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import { observer } from "mobx-react-lite";
+import { useTaskStore } from "~/lib/store/StoreProvider";
 import { api } from "~/trpc/react";
 import { cn } from "~/lib/utils";
 import type { Task } from "@prisma/client";
@@ -11,7 +13,11 @@ interface EditTaskModalProps {
   onClose: () => void;
 }
 
-export function EditTaskModal({ task, isOpen, onClose }: EditTaskModalProps) {
+export const EditTaskModal = observer(function EditTaskModal({
+  task,
+  isOpen,
+  onClose,
+}: EditTaskModalProps) {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [priority, setPriority] = useState(3);
@@ -19,7 +25,7 @@ export function EditTaskModal({ task, isOpen, onClose }: EditTaskModalProps) {
   const [deadline, setDeadline] = useState("");
 
   const titleRef = useRef<HTMLInputElement>(null);
-  const utils = api.useUtils();
+  const taskStore = useTaskStore();
 
   useEffect(() => {
     if (task && isOpen) {
@@ -41,9 +47,9 @@ export function EditTaskModal({ task, isOpen, onClose }: EditTaskModalProps) {
   }, [isOpen]);
 
   const updateTask = api.task.update.useMutation({
-    onSuccess: () => {
-      void utils.task.getInbox.invalidate();
-      void utils.task.getToday.invalidate();
+    onSuccess: (updatedTask) => {
+      // Update the task in the store
+      taskStore.updateTask(updatedTask.id, updatedTask);
       onClose();
     },
   });
@@ -217,4 +223,4 @@ export function EditTaskModal({ task, isOpen, onClose }: EditTaskModalProps) {
       </div>
     </div>
   );
-}
+});
