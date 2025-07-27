@@ -6,7 +6,7 @@ import { usePathname } from "next/navigation";
 import { useSession, signOut } from "next-auth/react";
 import { cn } from "~/lib/utils";
 import { NewTaskModal } from "./new-task-modal";
-import Image from "next/image";
+import { UserImage } from "./UserImage";
 
 const navItems = [
   { href: "/inbox", label: "Inbox", shortcut: "i" },
@@ -83,13 +83,7 @@ export function Navigation() {
               <div className="h-8 w-px bg-zinc-800" />
               <div className="flex items-center gap-3">
                 <div className="flex items-center gap-2">
-                  {session.user.image && (
-                    <Image
-                      src={session.user.image}
-                      alt={session.user.name ?? "User avatar"}
-                      className="h-8 w-8 rounded-full border border-zinc-700"
-                    />
-                  )}
+                  <UserImage user={session.user} />
                   <span className="text-sm text-zinc-400">
                     {session.user.name ?? session.user.email}
                   </span>
