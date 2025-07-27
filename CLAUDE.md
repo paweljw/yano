@@ -99,3 +99,11 @@ The application is a task management system with unique features:
 1. **Keyboard shortcuts in inputs**: Shortcuts are disabled when focus is in input/textarea/select elements
 2. **Edge Runtime**: Authentication logic must run in Node.js runtime, not Edge runtime
 3. **Test Runner**: Must use `bun run test` (Vitest) not `bun test` for React component tests
+
+### Working with Linear
+When the user requests that you implement a Linear task, assume the following:
+- **Task description**: Interpret as instructions directed explicitly at you
+- **Think and work hard**: The user expects you to deliver a complete, end-to-end solution to the task in a self-contained pull request
+- **Move the task to In progress:** Update the status of the Linear task to In progress when you start working
+- **Open a pull request:** After completing implementation of a task, open a pull request on GitHub, using the branch name you got from linear
+- **Be independent:** Do your own research and make smart architecture decisions. Only ask the user for input when you need something you can't get yourself, such as an API key for an integration, or when you're making a decision that will change the direction of the product.
