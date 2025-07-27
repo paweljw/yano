@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback } from "react";
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type Task = any;
+import type { Task as PrismaTask, Subtask } from "@prisma/client";
+
+type Task = PrismaTask & { subtasks: Subtask[] };
 
 interface KeyboardNavigationOptions {
   tasks: Task[];
@@ -71,7 +72,7 @@ export function useKeyboardNavigation({
       }
 
       const key = e.key.toLowerCase();
-      const selectedTask = tasks[selectedIndex] as Task;
+      const selectedTask = tasks[selectedIndex];
 
       switch (key) {
         case "j":
@@ -146,6 +147,6 @@ export function useKeyboardNavigation({
   return {
     selectedIndex,
     setSelectedIndex,
-    selectedTask: (tasks?.[selectedIndex] ?? null) as Task | null,
+    selectedTask: tasks?.[selectedIndex] ?? null,
   };
 }

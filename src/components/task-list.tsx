@@ -3,18 +3,18 @@
 import { useEffect, useState } from "react";
 import { observer } from "mobx-react-lite";
 import { useTaskStore } from "~/lib/store/store-provider";
+import type { TaskStore } from "~/lib/store/task.store";
 import { TaskCard } from "~/app/_components/task-card";
 import { TaskTimer } from "~/app/_components/task-timer";
 import { EditTaskModal } from "./edit-task-modal-v2";
 import { useKeyboardNavigation } from "~/hooks/use-keyboard-navigation";
 import { cn } from "~/lib/utils";
 import { TaskStatus } from "@prisma/client";
-import type { Task as PrismaTask } from "@prisma/client";
+import type { Task as PrismaTask, Subtask } from "@prisma/client";
 import { LoadingSpinner } from "./loading-spinner";
 import { EmptyState } from "./empty-state";
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type Task = PrismaTask & { subtasks: any[] };
+type Task = PrismaTask & { subtasks: Subtask[] };
 
 interface TaskListProps {
   view: "inbox" | "today" | "archive" | "trash";
@@ -241,7 +241,7 @@ export const TaskList = observer(function TaskList({
               task={task}
               isSelected={selectedIndex === index}
               onToggleSubtask={
-                view === "inbox" || view === "today"
+                view === "inbox"
                   ? (subtaskId) =>
                       taskStore.toggleSubtaskMutation(task.id, subtaskId)
                   : undefined
@@ -323,8 +323,7 @@ function TaskSection({
   );
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function renderTaskActions(task: Task, view: string, taskStore: any) {
+function renderTaskActions(task: Task, view: string, taskStore: TaskStore) {
   switch (view) {
     case "inbox":
       return (

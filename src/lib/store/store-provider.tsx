@@ -8,7 +8,7 @@ import { api } from "~/trpc/react";
 const StoreContext = createContext<RootStore | null>(null);
 
 export function StoreProvider({ children }: { children: ReactNode }) {
-  const storeRef = useRef<RootStore>();
+  const storeRef = useRef<RootStore | undefined>(undefined);
 
   if (!storeRef.current) {
     storeRef.current = createRootStore();

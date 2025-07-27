@@ -100,6 +100,22 @@ The application is a task management system with unique features:
 2. **Edge Runtime**: Authentication logic must run in Node.js runtime, not Edge runtime
 3. **Test Runner**: Must use `bun run test` (Vitest) not `bun test` for React component tests
 
+### Type Safety Best Practices
+1. **Avoid using `any` type**: Instead of using `type Task = any`, import proper types from Prisma:
+   ```typescript
+   import type { Task as PrismaTask, Subtask } from "@prisma/client";
+   type Task = PrismaTask & { subtasks: Subtask[] };
+   ```
+2. **Fix TypeScript errors properly**: Don't suppress warnings with eslint-disable comments unless absolutely necessary
+3. **useRef initialization**: When using `useRef` without an initial value, explicitly type it:
+   ```typescript
+   const storeRef = useRef<RootStore | undefined>(undefined);
+   ```
+4. **MobX Store Types**: The TaskStore type is available from:
+   ```typescript
+   import type { TaskStore } from "~/lib/store/task.store";
+   ```
+
 ### Working with Linear
 When the user requests that you implement a Linear task, assume the following:
 - **Task description**: Interpret as instructions directed explicitly at you
@@ -107,4 +123,5 @@ When the user requests that you implement a Linear task, assume the following:
 - **Move the task to In progress:** Update the status of the Linear task to In progress when you start working
 - **Open a pull request:** After completing implementation of a task, open a pull request on GitHub, using the branch name you got from linear
 - **Produce high-quality code:** make sure that linters and tests, as specified in the GitHub Actions workflow, pass. In particular make sure that `bun run check` and `bun run format:check` pass.
+- **Write unit tests**: When you introduce new code, make sure you cover it with unit tests if applicable. Make sure `bun run test` passes.
 - **Be independent:** Do your own research and make smart architecture decisions. Only ask the user for input when you need something you can't get yourself, such as an API key for an integration, or when you're making a decision that will change the direction of the product.
