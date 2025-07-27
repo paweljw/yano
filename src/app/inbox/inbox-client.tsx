@@ -5,11 +5,12 @@ import { api } from "~/trpc/react";
 import { TaskCard } from "../_components/task-card";
 import { EditTaskModal } from "../_components/edit-task-modal";
 import { cn } from "~/lib/utils";
+import type { Task } from "@prisma/client";
 
 export function InboxClient() {
-  const { data: tasks, isLoading, refetch } = api.task.getInbox.useQuery();
+  const { data: tasks, isLoading } = api.task.getInbox.useQuery();
   const [selectedIndex, setSelectedIndex] = useState(0);
-  const [editingTask, setEditingTask] = useState<any>(null);
+  const [editingTask, setEditingTask] = useState<Task | null>(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
   const utils = api.useUtils();
@@ -36,7 +37,7 @@ export function InboxClient() {
     },
     onSettled: () => {
       // Always refetch after error or success
-      utils.task.getInbox.invalidate();
+      void utils.task.getInbox.invalidate();
     },
   });
   
@@ -55,7 +56,7 @@ export function InboxClient() {
       utils.task.getInbox.setData(undefined, context?.previousInbox);
     },
     onSettled: () => {
-      utils.task.getInbox.invalidate();
+      void utils.task.getInbox.invalidate();
     },
   });
   
@@ -74,7 +75,7 @@ export function InboxClient() {
       utils.task.getInbox.setData(undefined, context?.previousInbox);
     },
     onSettled: () => {
-      utils.task.getInbox.invalidate();
+      void utils.task.getInbox.invalidate();
     },
   });
 

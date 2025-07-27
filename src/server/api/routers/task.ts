@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { TaskStatus } from "@prisma/client";
+import type { PrismaClient } from "@prisma/client";
 import {
   createTRPCRouter,
   protectedProcedure,
@@ -15,11 +16,11 @@ const needsDailyReset = (lastResetDate: Date): boolean => {
 };
 
 // Perform daily reset for a user
-const performDailyReset = async (ctx: any, userId: string) => {
+const performDailyReset = async (ctx: { db: PrismaClient }, userId: string) => {
   const now = new Date();
   
   // Start a transaction to ensure consistency
-  await ctx.db.$transaction(async (tx: any) => {
+  await ctx.db.$transaction(async (tx) => {
     // 1. Move PAUSED tasks back to TODAY (user was working on them)
     await tx.task.updateMany({
       where: {
@@ -474,7 +475,7 @@ export const taskRouter = createTRPCRouter({
 
       const needsReset = user?.lastResetDate ? needsDailyReset(user.lastResetDate) : true;
       if (needsReset) {
-        await performDailyReset(ctx.db, ctx.session.user.id);
+        await performDailyReset(ctx, ctx.session.user.id);
       }
 
       return ctx.db.task.update({

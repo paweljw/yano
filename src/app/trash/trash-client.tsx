@@ -2,10 +2,9 @@
 
 import { api } from "~/trpc/react";
 import { TaskCard } from "../_components/task-card";
-import type { Task } from "@prisma/client";
 
 export function TrashClient() {
-  const { data: tasks, isLoading, refetch } = api.task.getTrash.useQuery();
+  const { data: tasks, isLoading } = api.task.getTrash.useQuery();
   const utils = api.useUtils();
   
   const deleteTask = api.task.delete.useMutation({
@@ -30,7 +29,7 @@ export function TrashClient() {
     },
     onSettled: () => {
       // Always refetch after error or success
-      utils.task.getTrash.invalidate();
+      void utils.task.getTrash.invalidate();
     },
   });
 
@@ -49,8 +48,8 @@ export function TrashClient() {
       utils.task.getTrash.setData(undefined, context?.previousTrash);
     },
     onSettled: () => {
-      utils.task.getTrash.invalidate();
-      utils.task.getInbox.invalidate();
+      void utils.task.getTrash.invalidate();
+      void utils.task.getInbox.invalidate();
     },
   });
 

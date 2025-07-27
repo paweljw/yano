@@ -85,11 +85,11 @@ export function Navigation() {
                 {session.user.image && (
                   <img
                     src={session.user.image}
-                    alt={session.user.name || "User avatar"}
+                    alt={session.user.name ?? "User avatar"}
                     className="h-8 w-8 rounded-full border border-zinc-700"
                   />
                 )}
-                <span className="text-sm text-zinc-400">{session.user.name || session.user.email}</span>
+                <span className="text-sm text-zinc-400">{session.user.name ?? session.user.email}</span>
               </div>
               <button
                 onClick={() => signOut()}

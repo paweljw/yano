@@ -23,7 +23,7 @@ export function NewTaskModal({ isOpen, onClose }: NewTaskModalProps) {
 
   const createTask = api.task.create.useMutation({
     onSuccess: () => {
-      utils.task.getInbox.invalidate();
+      void utils.task.getInbox.invalidate();
       onClose();
       // Reset form
       setTitle("");

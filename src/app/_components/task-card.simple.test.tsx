@@ -18,6 +18,9 @@ describe('TaskCard - Basic Tests', () => {
     completedAt: null,
     lastStartedAt: null,
     totalTimeSpent: 0,
+    postponedUntil: null,
+    acceptedAt: null,
+    trashedAt: null,
     subtasks: [],
   };
 
@@ -49,8 +52,8 @@ describe('TaskCard - Basic Tests', () => {
     const taskWithSubtasks = {
       ...mockTask,
       subtasks: [
-        { id: 'sub-1', title: 'Subtask 1', completed: false, taskId: 'task-1' },
-        { id: 'sub-2', title: 'Subtask 2', completed: true, taskId: 'task-1' },
+        { id: 'sub-1', title: 'Subtask 1', completed: false, taskId: 'task-1', order: 0, createdAt: new Date(), updatedAt: new Date() },
+        { id: 'sub-2', title: 'Subtask 2', completed: true, taskId: 'task-1', order: 1, createdAt: new Date(), updatedAt: new Date() },
       ],
     };
     

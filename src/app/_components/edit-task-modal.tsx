@@ -24,10 +24,10 @@ export function EditTaskModal({ task, isOpen, onClose }: EditTaskModalProps) {
   useEffect(() => {
     if (task && isOpen) {
       setTitle(task.title);
-      setDescription(task.description || "");
+      setDescription(task.description ?? "");
       setPriority(task.priority);
       setSpiciness(task.spiciness);
-      setDeadline(task.deadline ? task.deadline.toISOString().split('T')[0] : "");
+      setDeadline(task.deadline ? task.deadline.toISOString().split('T')[0] ?? "" : "");
     }
   }, [task, isOpen]);
 
@@ -40,8 +40,8 @@ export function EditTaskModal({ task, isOpen, onClose }: EditTaskModalProps) {
 
   const updateTask = api.task.update.useMutation({
     onSuccess: () => {
-      utils.task.getInbox.invalidate();
-      utils.task.getToday.invalidate();
+      void utils.task.getInbox.invalidate();
+      void utils.task.getToday.invalidate();
       onClose();
     },
   });

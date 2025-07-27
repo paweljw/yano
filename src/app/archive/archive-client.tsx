@@ -1,12 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { } from "react";
 import { api } from "~/trpc/react";
 import { TaskCard } from "../_components/task-card";
-import { cn } from "~/lib/utils";
 
 export function ArchiveClient() {
-  const [cursor, setCursor] = useState<string | undefined>(undefined);
   const { data, isLoading, fetchNextPage, hasNextPage } = api.task.getArchive.useInfiniteQuery(
     { limit: 20 },
     {
@@ -36,12 +34,12 @@ export function ArchiveClient() {
     },
     onError: () => {
       // Rollback on error
-      utils.task.getArchive.invalidate();
+      void utils.task.getArchive.invalidate();
     },
     onSettled: () => {
       // Always refetch after error or success
-      utils.task.getArchive.invalidate();
-      utils.task.getInbox.invalidate();
+      void utils.task.getArchive.invalidate();
+      void utils.task.getInbox.invalidate();
     },
   });
 
@@ -81,7 +79,7 @@ export function ArchiveClient() {
   const tasksByDate = tasks.reduce((acc, task) => {
     if (!task.completedAt) return acc;
     const dateKey = formatCompletionDate(task.completedAt);
-    if (!acc[dateKey]) acc[dateKey] = [];
+    acc[dateKey] ??= [];
     acc[dateKey].push(task);
     return acc;
   }, {} as Record<string, typeof tasks>);

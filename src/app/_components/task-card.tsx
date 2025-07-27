@@ -45,7 +45,7 @@ export function TaskCard({ task, isSelected, actions, onToggleSubtask, timer }: 
             <div className="flex flex-col items-center gap-1">
               {/* Priority indicator */}
               <div className="flex flex-col-reverse gap-0.5">
-                {[...Array(5)].map((_, i) => (
+                {[...Array(5) as unknown[]].map((_, i) => (
                   <div
                     key={i}
                     className={cn(
@@ -60,7 +60,7 @@ export function TaskCard({ task, isSelected, actions, onToggleSubtask, timer }: 
               
               {/* Spiciness indicator */}
               <div className="mt-2 flex gap-0.5">
-                {[...Array(task.spiciness)].map((_, i) => (
+                {[...Array(task.spiciness) as unknown[]].map((_, i) => (
                   <span key={i} className="text-xs">🌶️</span>
                 ))}
               </div>

@@ -3,12 +3,12 @@ import { headers } from "next/headers";
 import { api } from "~/trpc/server";
 import { auth } from "~/server/auth";
 
-export async function GET(request: Request) {
+export async function GET(_request: Request) {
   try {
     // In production, you should verify this is called by your cron service
     // For example, check for a secret header:
     const headersList = await headers();
-    const cronSecret = headersList.get("x-cron-secret");
+    const _cronSecret = headersList.get("x-cron-secret");
     
     // Uncomment in production:
     // if (cronSecret !== process.env.CRON_SECRET) {

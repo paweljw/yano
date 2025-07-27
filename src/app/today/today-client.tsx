@@ -7,11 +7,12 @@ import { TaskTimer } from "../_components/task-timer";
 import { EditTaskModal } from "../_components/edit-task-modal";
 import { cn } from "~/lib/utils";
 import { TaskStatus } from "@prisma/client";
+import type { Task } from "@prisma/client";
 
 export function TodayClient() {
-  const { data: tasks, isLoading, refetch } = api.task.getToday.useQuery();
+  const { data: tasks, isLoading } = api.task.getToday.useQuery();
   const [selectedIndex, setSelectedIndex] = useState(0);
-  const [editingTask, setEditingTask] = useState<any>(null);
+  const [editingTask, setEditingTask] = useState<Task | null>(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   
   const utils = api.useUtils();
@@ -36,7 +37,7 @@ export function TodayClient() {
       utils.task.getToday.setData(undefined, context?.previousToday);
     },
     onSettled: () => {
-      utils.task.getToday.invalidate();
+      void utils.task.getToday.invalidate();
     },
   });
 
@@ -60,7 +61,7 @@ export function TodayClient() {
       utils.task.getToday.setData(undefined, context?.previousToday);
     },
     onSettled: () => {
-      utils.task.getToday.invalidate();
+      void utils.task.getToday.invalidate();
     },
   });
 
@@ -80,7 +81,7 @@ export function TodayClient() {
       utils.task.getToday.setData(undefined, context?.previousToday);
     },
     onSettled: () => {
-      utils.task.getToday.invalidate();
+      void utils.task.getToday.invalidate();
     },
   });
 
@@ -111,7 +112,7 @@ export function TodayClient() {
       utils.task.getToday.setData(undefined, context?.previousToday);
     },
     onSettled: () => {
-      utils.task.getToday.invalidate();
+      void utils.task.getToday.invalidate();
     },
   });
 
@@ -212,7 +213,7 @@ export function TodayClient() {
         <div className="mb-8">
           <h2 className="mb-4 text-lg font-semibold text-zinc-300">In Progress</h2>
           <div className="space-y-4">
-            {inProgressTasks.map((task, index) => {
+            {inProgressTasks.map((task, _index) => {
               const globalIndex = orderedTasks.findIndex(t => t.id === task.id);
               return (
                 <div
@@ -233,7 +234,7 @@ export function TodayClient() {
                         isRunning={true}
                         currentSessionStart={task.lastStartedAt}
                         totalTimeSpent={task.totalTimeSpent}
-                        onStart={() => {}}
+                        onStart={() => undefined}
                         onPause={() => pauseTask.mutate({ id: task.id })}
                         onComplete={() => completeTask.mutate({ id: task.id })}
                       />
@@ -271,7 +272,7 @@ export function TodayClient() {
                         isRunning={false}
                         totalTimeSpent={task.totalTimeSpent}
                         onStart={() => startTask.mutate({ id: task.id })}
-                        onPause={() => {}}
+                        onPause={() => undefined}
                         onComplete={() => completeTask.mutate({ id: task.id })}
                       />
                     }
