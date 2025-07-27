@@ -211,7 +211,9 @@ export const TaskStoreModel = types
       setError("inbox", null);
       try {
         if (!self.api) throw new Error("API not initialized");
-        const tasks = (yield self.api.task.getInbox.query()) as Array<Task & { subtasks: Subtask[] }>;
+        const tasks = (yield self.api.task.getInbox.query()) as Array<
+          Task & { subtasks: Subtask[] }
+        >;
         tasks.forEach((task) => addTask(task));
       } catch (error) {
         setError(
@@ -228,7 +230,9 @@ export const TaskStoreModel = types
       setError("today", null);
       try {
         if (!self.api) throw new Error("API not initialized");
-        const tasks = (yield self.api.task.getToday.query()) as Array<Task & { subtasks: Subtask[] }>;
+        const tasks = (yield self.api.task.getToday.query()) as Array<
+          Task & { subtasks: Subtask[] }
+        >;
         tasks.forEach((task) => addTask(task));
       } catch (error) {
         setError(
@@ -245,7 +249,13 @@ export const TaskStoreModel = types
       setError("archive", null);
       try {
         if (!self.api) throw new Error("API not initialized");
-        const result = (yield self.api.task.getArchive.query({ limit: 20, cursor })) as { tasks: Array<Task & { subtasks: Subtask[] }>; nextCursor: string | null };
+        const result = (yield self.api.task.getArchive.query({
+          limit: 20,
+          cursor,
+        })) as {
+          tasks: Array<Task & { subtasks: Subtask[] }>;
+          nextCursor: string | null;
+        };
         result.tasks.forEach((task) => addTask(task));
         return result.nextCursor;
       } catch (error) {

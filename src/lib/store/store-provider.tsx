@@ -11,20 +11,24 @@ const StoreContext = createContext<RootStore | null>(null);
 
 export function StoreProvider({ children }: { children: ReactNode }) {
   const storeRef = useRef<RootStore | undefined>(undefined);
-  
-  const trpcClient = useMemo(() => createTRPCClient<AppRouter>({
-    links: [
-      httpBatchLink({
-        url: `${typeof window !== "undefined" ? window.location.origin : ""}/api/trpc`,
-        headers: () => {
-          const headers = new Headers();
-          headers.set("x-trpc-source", "client");
-          return headers;
-        },
-        transformer: SuperJSON,
+
+  const trpcClient = useMemo(
+    () =>
+      createTRPCClient<AppRouter>({
+        links: [
+          httpBatchLink({
+            url: `${typeof window !== "undefined" ? window.location.origin : ""}/api/trpc`,
+            headers: () => {
+              const headers = new Headers();
+              headers.set("x-trpc-source", "client");
+              return headers;
+            },
+            transformer: SuperJSON,
+          }),
+        ],
       }),
-    ],
-  }), []);
+    [],
+  );
 
   if (!storeRef.current) {
     storeRef.current = createRootStore();
