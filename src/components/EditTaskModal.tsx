@@ -95,11 +95,13 @@ export const EditTaskModal = observer(function EditTaskModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
-      <div className="w-full max-w-2xl rounded-2xl border border-zinc-800 bg-zinc-900 p-6 shadow-xl">
+    <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/50 backdrop-blur-sm sm:items-center sm:p-4">
+      <div className="max-h-[90vh] w-full overflow-y-auto rounded-t-2xl border border-zinc-800 bg-zinc-900 p-4 shadow-xl sm:max-h-[85vh] sm:max-w-2xl sm:rounded-2xl sm:p-6">
         <form onSubmit={handleSubmit}>
           <div className="mb-6">
-            <h2 className="text-2xl font-bold text-white">Edit Task</h2>
+            <h2 className="text-xl font-bold text-white sm:text-2xl">
+              Edit Task
+            </h2>
           </div>
 
           <div className="space-y-4">
@@ -139,7 +141,7 @@ export const EditTaskModal = observer(function EditTaskModal({
               />
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div>
                 <label className="mb-1 block text-sm font-medium text-zinc-300">
                   Priority ({priority})
@@ -151,7 +153,7 @@ export const EditTaskModal = observer(function EditTaskModal({
                       type="button"
                       onClick={() => setPriority(level)}
                       className={cn(
-                        "h-8 w-8 rounded-lg border-2 text-sm font-medium transition-all",
+                        "h-10 w-10 rounded-lg border-2 text-sm font-medium transition-all sm:h-8 sm:w-8",
                         level <= priority
                           ? "border-purple-500 bg-purple-500/20 text-purple-400"
                           : "border-zinc-700 bg-zinc-800 text-zinc-500 hover:border-zinc-600",
@@ -174,7 +176,7 @@ export const EditTaskModal = observer(function EditTaskModal({
                       type="button"
                       onClick={() => setSpiciness(level)}
                       className={cn(
-                        "h-8 w-8 rounded-lg text-sm transition-all",
+                        "h-10 w-10 rounded-lg text-sm transition-all sm:h-8 sm:w-8",
                         level <= spiciness ? "opacity-100" : "opacity-30",
                       )}
                     >
@@ -207,14 +209,14 @@ export const EditTaskModal = observer(function EditTaskModal({
             <button
               type="button"
               onClick={onClose}
-              className="rounded-lg px-4 py-2 text-sm font-medium text-zinc-400 hover:text-zinc-300"
+              className="min-h-[44px] rounded-lg px-4 py-2 text-sm font-medium text-zinc-400 hover:text-zinc-300 sm:min-h-0"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={!title.trim() || updateTask.isPending}
-              className="rounded-lg bg-gradient-to-r from-purple-500 to-pink-500 px-4 py-2 text-sm font-medium text-white transition-opacity hover:opacity-90 disabled:opacity-50"
+              className="min-h-[44px] rounded-lg bg-gradient-to-r from-purple-500 to-pink-500 px-4 py-2 text-sm font-medium text-white transition-opacity hover:opacity-90 disabled:opacity-50 sm:min-h-0"
             >
               {updateTask.isPending ? "Saving..." : "Save Changes"}
             </button>

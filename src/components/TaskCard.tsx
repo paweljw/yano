@@ -42,13 +42,13 @@ export function TaskCard({
   return (
     <div
       className={cn(
-        "group rounded-xl border bg-zinc-900/50 p-6 transition-all",
+        "group rounded-xl border bg-zinc-900/50 p-4 transition-all sm:p-6",
         isSelected
           ? "border-purple-500/50 shadow-lg"
           : "border-zinc-800 hover:border-zinc-700",
       )}
     >
-      <div className="flex items-start justify-between gap-4">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
         <div className="flex-1">
           <div className="flex items-start gap-3">
             <div className="flex flex-col items-center gap-1">
@@ -78,7 +78,7 @@ export function TaskCard({
             </div>
 
             <div className="flex-1">
-              <h3 className="text-lg font-semibold text-zinc-100">
+              <h3 className="text-base font-semibold text-zinc-100 sm:text-lg">
                 {task.title}
               </h3>
 
@@ -111,7 +111,7 @@ export function TaskCard({
                 </div>
               )}
 
-              <div className="mt-3 flex items-center gap-4 text-xs">
+              <div className="mt-3 flex flex-wrap items-center gap-3 text-xs sm:gap-4">
                 {deadline && (
                   <span
                     className={cn(
@@ -159,9 +159,9 @@ export function TaskCard({
           </div>
         </div>
 
-        <div className="flex flex-col items-end gap-2">
+        <div className="flex items-center gap-2 sm:flex-col sm:items-end">
           {timer}
-          {actions}
+          {actions && <div className="flex gap-2">{actions}</div>}
         </div>
       </div>
     </div>
