@@ -127,6 +127,7 @@ The application is a task management system with unique features:
 
 ### Working with Linear
 When the user requests that you implement a Linear task, assume the following:
+- **Use MCP:** When the user pastes a link to linear.app, use the MCP tool to get information about the Linear task. **DO NOT** try to access it on the web.
 - **Task description**: Interpret as instructions directed explicitly at you
 - **Think and work hard**: The user expects you to deliver a complete, end-to-end solution to the task in a self-contained pull request
 - **Move the task to In progress:** Update the status of the Linear task to In progress when you start working

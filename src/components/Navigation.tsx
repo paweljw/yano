@@ -19,6 +19,7 @@ export function Navigation() {
   const pathname = usePathname();
   const { data: session } = useSession();
   const [isNewTaskModalOpen, setIsNewTaskModalOpen] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   // Listen for new task event
   useEffect(() => {
@@ -37,7 +38,7 @@ export function Navigation() {
       <nav className="border-b border-zinc-800 bg-zinc-900/50 backdrop-blur-sm">
         <div className="container mx-auto px-4">
           <div className="flex h-16 items-center justify-between">
-            <div className="flex items-center gap-8">
+            <div className="flex items-center gap-4 sm:gap-8">
               <Link href="/" className="flex items-center gap-2">
                 <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-purple-500 to-pink-500">
                   <span className="text-sm font-bold text-white">Y</span>
@@ -45,7 +46,7 @@ export function Navigation() {
                 <span className="text-xl font-bold text-white">YaNo</span>
               </Link>
 
-              <ul className="flex items-center gap-1">
+              <ul className="hidden items-center gap-1 sm:flex">
                 {navItems.map((item) => (
                   <li key={item.href}>
                     <Link
@@ -73,16 +74,17 @@ export function Navigation() {
               </ul>
             </div>
 
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2 sm:gap-4">
               <button
                 onClick={() => setIsNewTaskModalOpen(true)}
-                className="rounded-lg bg-gradient-to-r from-purple-500 to-pink-500 px-4 py-2 text-sm font-medium text-white transition-all hover:opacity-90"
+                className="rounded-lg bg-gradient-to-r from-purple-500 to-pink-500 px-3 py-2 text-sm font-medium text-white transition-all hover:opacity-90 sm:px-4"
               >
-                + New Task
+                <span className="hidden sm:inline">+ New Task</span>
+                <span className="sm:hidden">+</span>
               </button>
-              <div className="h-8 w-px bg-zinc-800" />
+              <div className="hidden h-8 w-px bg-zinc-800 sm:block" />
               <div className="flex items-center gap-3">
-                <div className="flex items-center gap-2">
+                <div className="hidden items-center gap-2 sm:flex">
                   <UserImage user={session.user} />
                   <span className="text-sm text-zinc-400">
                     {session.user.name ?? session.user.email}
@@ -108,10 +110,77 @@ export function Navigation() {
                   </svg>
                 </button>
               </div>
+
+              {/* Mobile menu button */}
+              <button
+                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                className="rounded-lg p-2 text-zinc-400 transition-colors hover:bg-zinc-800/50 hover:text-zinc-200 sm:hidden"
+                aria-label="Toggle menu"
+              >
+                <svg
+                  className="h-6 w-6"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  {isMobileMenuOpen ? (
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M6 18L18 6M6 6l12 12"
+                    />
+                  ) : (
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M4 6h16M4 12h16M4 18h16"
+                    />
+                  )}
+                </svg>
+              </button>
             </div>
           </div>
         </div>
       </nav>
+
+      {/* Mobile menu */}
+      {isMobileMenuOpen && (
+        <div className="border-b border-zinc-800 bg-zinc-900 sm:hidden">
+          <div className="container mx-auto px-4 py-4">
+            <ul className="space-y-2">
+              {navItems.map((item) => (
+                <li key={item.href}>
+                  <Link
+                    href={item.href}
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className={cn(
+                      "flex items-center justify-between rounded-lg px-4 py-3 text-sm font-medium transition-all",
+                      "hover:bg-zinc-800/50",
+                      pathname === item.href
+                        ? "bg-zinc-800/30 text-white"
+                        : "text-zinc-400 hover:text-zinc-200",
+                    )}
+                  >
+                    <span>{item.label}</span>
+                    <span className="rounded bg-zinc-800 px-1.5 py-0.5 font-mono text-xs text-zinc-500">
+                      {item.shortcut}
+                    </span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+            <div className="mt-4 flex items-center gap-2 border-t border-zinc-800 pt-4">
+              <UserImage user={session.user} />
+              <span className="flex-1 text-sm text-zinc-400">
+                {session.user.name ?? session.user.email}
+              </span>
+            </div>
+          </div>
+        </div>
+      )}
+
       <NewTaskModal
         isOpen={isNewTaskModalOpen}
         onClose={() => setIsNewTaskModalOpen(false)}

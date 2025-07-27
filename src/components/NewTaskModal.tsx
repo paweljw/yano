@@ -94,11 +94,13 @@ export function NewTaskModal({ isOpen, onClose }: NewTaskModalProps) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
-      <div className="w-full max-w-2xl rounded-2xl border border-zinc-800 bg-zinc-900 p-6 shadow-xl">
+    <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/50 backdrop-blur-sm sm:items-center sm:p-4">
+      <div className="max-h-[90vh] w-full overflow-y-auto rounded-t-2xl border border-zinc-800 bg-zinc-900 p-4 shadow-xl sm:max-h-[85vh] sm:max-w-2xl sm:rounded-2xl sm:p-6">
         <form onSubmit={handleSubmit}>
           <div className="mb-6">
-            <h2 className="text-2xl font-bold text-white">New Task</h2>
+            <h2 className="text-xl font-bold text-white sm:text-2xl">
+              New Task
+            </h2>
             <p className="mt-1 text-sm text-zinc-400">
               Add a new task to your inbox
             </p>
@@ -265,14 +267,14 @@ export function NewTaskModal({ isOpen, onClose }: NewTaskModalProps) {
             <button
               type="button"
               onClick={onClose}
-              className="rounded-lg px-4 py-2 text-sm font-medium text-zinc-400 hover:text-zinc-300"
+              className="min-h-[44px] rounded-lg px-4 py-2 text-sm font-medium text-zinc-400 hover:text-zinc-300 sm:min-h-0"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={!title.trim() || createTask.isPending}
-              className="rounded-lg bg-gradient-to-r from-purple-500 to-pink-500 px-4 py-2 text-sm font-medium text-white transition-opacity hover:opacity-90 disabled:opacity-50"
+              className="min-h-[44px] rounded-lg bg-gradient-to-r from-purple-500 to-pink-500 px-4 py-2 text-sm font-medium text-white transition-opacity hover:opacity-90 disabled:opacity-50 sm:min-h-0"
             >
               {createTask.isPending ? "Creating..." : "Create Task"}
             </button>

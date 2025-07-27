@@ -13,6 +13,11 @@ export const metadata: Metadata = {
   description:
     "Plan your day with YaNo - A powerful task management tool for productivity enthusiasts",
   icons: [{ rel: "icon", url: "/favicon.ico" }],
+  viewport: {
+    width: "device-width",
+    initialScale: 1,
+    maximumScale: 1,
+  },
 };
 
 const geist = Geist({

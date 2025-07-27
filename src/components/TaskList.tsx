@@ -139,10 +139,14 @@ export const TaskList = observer(function TaskList({
     const todoTasks = tasks.filter((t) => t.status === TaskStatus.TODAY);
 
     return (
-      <div className="container mx-auto p-8">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-zinc-100">{title}</h1>
-          <p className="mt-2 text-zinc-400">{description}</p>
+      <div className="container mx-auto p-4 sm:p-8">
+        <div className="mb-6 sm:mb-8">
+          <h1 className="text-2xl font-bold text-zinc-100 sm:text-3xl">
+            {title}
+          </h1>
+          <p className="mt-2 text-sm text-zinc-400 sm:text-base">
+            {description}
+          </p>
         </div>
 
         {inProgressTasks.length > 0 && (
@@ -198,7 +202,7 @@ export const TaskList = observer(function TaskList({
             renderActions={(task) => (
               <button
                 onClick={() => taskStore.startTask(task.id)}
-                className="rounded-lg bg-green-600/20 px-3 py-1.5 text-sm font-medium text-green-400 transition-colors hover:bg-green-600/30"
+                className="min-h-[44px] min-w-[44px] rounded-lg bg-green-600/20 px-3 py-2 text-sm font-medium text-green-400 transition-colors hover:bg-green-600/30 sm:min-h-0 sm:min-w-0 sm:py-1.5"
               >
                 ya
               </button>
@@ -220,10 +224,12 @@ export const TaskList = observer(function TaskList({
 
   // Default layout for other views
   return (
-    <div className="container mx-auto p-8">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-zinc-100">{title}</h1>
-        <p className="mt-2 text-zinc-400">{description}</p>
+    <div className="container mx-auto p-4 sm:p-8">
+      <div className="mb-6 sm:mb-8">
+        <h1 className="text-2xl font-bold text-zinc-100 sm:text-3xl">
+          {title}
+        </h1>
+        <p className="mt-2 text-sm text-zinc-400 sm:text-base">{description}</p>
       </div>
 
       <div className="space-y-4">
@@ -289,9 +295,11 @@ function TaskSection({
   );
 
   return (
-    <div className="mb-8">
-      <h2 className="mb-4 text-lg font-semibold text-zinc-300">{title}</h2>
-      <div className="space-y-4">
+    <div className="mb-6 sm:mb-8">
+      <h2 className="mb-3 text-base font-semibold text-zinc-300 sm:mb-4 sm:text-lg">
+        {title}
+      </h2>
+      <div className="space-y-3 sm:space-y-4">
         {tasks.map((task) => {
           const globalIndex = globalIndexMap.get(task.id) ?? -1;
           return (
@@ -330,19 +338,19 @@ function renderTaskActions(task: Task, view: string, taskStore: TaskStore) {
         <div className="flex items-center gap-2">
           <button
             onClick={() => taskStore.acceptTask(task.id)}
-            className="rounded-lg bg-green-600/20 px-3 py-1.5 text-sm font-medium text-green-400 transition-colors hover:bg-green-600/30"
+            className="min-h-[44px] min-w-[44px] rounded-lg bg-green-600/20 px-3 py-2 text-sm font-medium text-green-400 transition-colors hover:bg-green-600/30 sm:min-h-0 sm:min-w-0 sm:py-1.5"
           >
             ya
           </button>
           <button
             onClick={() => taskStore.postponeTask(task.id)}
-            className="rounded-lg bg-amber-600/20 px-3 py-1.5 text-sm font-medium text-amber-400 transition-colors hover:bg-amber-600/30"
+            className="min-h-[44px] min-w-[44px] rounded-lg bg-amber-600/20 px-3 py-2 text-sm font-medium text-amber-400 transition-colors hover:bg-amber-600/30 sm:min-h-0 sm:min-w-0 sm:py-1.5"
           >
             l8r
           </button>
           <button
             onClick={() => taskStore.rejectTask(task.id)}
-            className="rounded-lg bg-red-600/20 px-3 py-1.5 text-sm font-medium text-red-400 transition-colors hover:bg-red-600/30"
+            className="min-h-[44px] min-w-[44px] rounded-lg bg-red-600/20 px-3 py-2 text-sm font-medium text-red-400 transition-colors hover:bg-red-600/30 sm:min-h-0 sm:min-w-0 sm:py-1.5"
           >
             no
           </button>
@@ -355,14 +363,14 @@ function renderTaskActions(task: Task, view: string, taskStore: TaskStore) {
         <div className="flex items-center gap-2">
           <button
             onClick={() => taskStore.restoreTask(task.id)}
-            className="rounded-lg bg-zinc-800 px-3 py-1.5 text-sm font-medium text-zinc-300 transition-colors hover:bg-zinc-700"
+            className="min-h-[44px] rounded-lg bg-zinc-800 px-3 py-2 text-sm font-medium text-zinc-300 transition-colors hover:bg-zinc-700 sm:min-h-0 sm:py-1.5"
           >
             Restore
           </button>
           {view === "trash" && (
             <button
               onClick={() => taskStore.deleteTask(task.id)}
-              className="rounded-lg bg-red-900/20 px-3 py-1.5 text-sm font-medium text-red-400 transition-colors hover:bg-red-900/30"
+              className="min-h-[44px] rounded-lg bg-red-900/20 px-3 py-2 text-sm font-medium text-red-400 transition-colors hover:bg-red-900/30 sm:min-h-0 sm:py-1.5"
             >
               Delete Forever
             </button>

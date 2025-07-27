@@ -52,9 +52,9 @@ export function TaskTimer({
   const currentTotal = totalTimeSpent + elapsedTime;
 
   return (
-    <div className="flex flex-col items-end gap-2">
-      <div className="text-right">
-        <div className="font-mono text-2xl font-bold text-white">
+    <div className="flex flex-col items-center gap-2 sm:items-end">
+      <div className="text-center sm:text-right">
+        <div className="font-mono text-xl font-bold text-white sm:text-2xl">
           {formatTime(elapsedTime)}
         </div>
         {currentTotal > 0 && (
@@ -69,7 +69,7 @@ export function TaskTimer({
           <>
             <button
               onClick={onStart}
-              className="flex items-center gap-2 rounded-lg bg-green-600/20 px-3 py-1.5 text-sm font-medium text-green-400 transition-colors hover:bg-green-600/30"
+              className="flex min-h-[44px] items-center gap-2 rounded-lg bg-green-600/20 px-3 py-2 text-sm font-medium text-green-400 transition-colors hover:bg-green-600/30 sm:min-h-0 sm:py-1.5"
             >
               <svg
                 className="h-4 w-4"
@@ -94,7 +94,7 @@ export function TaskTimer({
             </button>
             <button
               onClick={onComplete}
-              className="flex items-center gap-2 rounded-lg bg-purple-600/20 px-3 py-1.5 text-sm font-medium text-purple-400 transition-colors hover:bg-purple-600/30"
+              className="flex min-h-[44px] items-center gap-2 rounded-lg bg-purple-600/20 px-3 py-2 text-sm font-medium text-purple-400 transition-colors hover:bg-purple-600/30 sm:min-h-0 sm:py-1.5"
             >
               <svg
                 className="h-4 w-4"
@@ -116,7 +116,7 @@ export function TaskTimer({
           <>
             <button
               onClick={onPause}
-              className="flex items-center gap-2 rounded-lg bg-amber-600/20 px-3 py-1.5 text-sm font-medium text-amber-400 transition-colors hover:bg-amber-600/30"
+              className="flex min-h-[44px] items-center gap-2 rounded-lg bg-amber-600/20 px-3 py-2 text-sm font-medium text-amber-400 transition-colors hover:bg-amber-600/30 sm:min-h-0 sm:py-1.5"
             >
               <svg
                 className="h-4 w-4"
@@ -135,7 +135,7 @@ export function TaskTimer({
             </button>
             <button
               onClick={onComplete}
-              className="flex items-center gap-2 rounded-lg bg-purple-600/20 px-3 py-1.5 text-sm font-medium text-purple-400 transition-colors hover:bg-purple-600/30"
+              className="flex min-h-[44px] items-center gap-2 rounded-lg bg-purple-600/20 px-3 py-2 text-sm font-medium text-purple-400 transition-colors hover:bg-purple-600/30 sm:min-h-0 sm:py-1.5"
             >
               <svg
                 className="h-4 w-4"
