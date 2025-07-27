@@ -147,8 +147,14 @@ export function Navigation() {
 
       {/* Mobile menu */}
       {isMobileMenuOpen && (
-        <div className="border-b border-zinc-800 bg-zinc-900 sm:hidden">
+        <div
+          className="border-b border-zinc-800 bg-zinc-900 sm:hidden"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="mobile-menu-title"
+        >
           <div className="container mx-auto px-4 py-4">
+            <h2 id="mobile-menu-title" className="sr-only">Mobile Menu</h2>
             <ul className="space-y-2">
               {navItems.map((item) => (
                 <li key={item.href}>
