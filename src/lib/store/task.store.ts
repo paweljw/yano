@@ -137,9 +137,9 @@ export const TaskStoreModel = types
     },
   }))
   .actions((self) => {
-    let api: any;
+    let api: TRPCApi;
 
-    const setApi = (trpcApi: any) => {
+    const setApi = (trpcApi: TRPCApi) => {
       api = trpcApi;
     };
 
