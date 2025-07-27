@@ -17,13 +17,13 @@ export function NewTaskModal({ isOpen, onClose }: NewTaskModalProps) {
   const [deadline, setDeadline] = useState("");
   const [subtasks, setSubtasks] = useState<string[]>([]);
   const [newSubtask, setNewSubtask] = useState("");
-  
+
   const titleRef = useRef<HTMLInputElement>(null);
   const utils = api.useUtils();
 
   const createTask = api.task.create.useMutation({
     onSuccess: () => {
-      utils.task.getInbox.invalidate();
+      void utils.task.getInbox.invalidate();
       onClose();
       // Reset form
       setTitle("");
@@ -46,21 +46,24 @@ export function NewTaskModal({ isOpen, onClose }: NewTaskModalProps) {
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (!isOpen) return;
-      
-      if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
+
+      if ((e.metaKey || e.ctrlKey) && e.key === "Enter") {
         e.preventDefault();
         if (title.trim()) {
-          const formEvent = new Event('submit', { bubbles: true, cancelable: true });
-          document.querySelector('form')?.dispatchEvent(formEvent);
+          const formEvent = new Event("submit", {
+            bubbles: true,
+            cancelable: true,
+          });
+          document.querySelector("form")?.dispatchEvent(formEvent);
         }
-      } else if (e.key === 'Escape') {
+      } else if (e.key === "Escape") {
         e.preventDefault();
         onClose();
       }
     };
 
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
   }, [isOpen, title, onClose]);
 
   if (!isOpen) return null;
@@ -96,12 +99,17 @@ export function NewTaskModal({ isOpen, onClose }: NewTaskModalProps) {
         <form onSubmit={handleSubmit}>
           <div className="mb-6">
             <h2 className="text-2xl font-bold text-white">New Task</h2>
-            <p className="mt-1 text-sm text-zinc-400">Add a new task to your inbox</p>
+            <p className="mt-1 text-sm text-zinc-400">
+              Add a new task to your inbox
+            </p>
           </div>
 
           <div className="space-y-4">
             <div>
-              <label htmlFor="title" className="mb-1 block text-sm font-medium text-zinc-300">
+              <label
+                htmlFor="title"
+                className="mb-1 block text-sm font-medium text-zinc-300"
+              >
                 Title
               </label>
               <input
@@ -110,14 +118,17 @@ export function NewTaskModal({ isOpen, onClose }: NewTaskModalProps) {
                 type="text"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
-                className="w-full rounded-lg border border-zinc-700 bg-zinc-800 px-4 py-2 text-white placeholder-zinc-500 focus:border-purple-500 focus:outline-none focus:ring-1 focus:ring-purple-500"
+                className="w-full rounded-lg border border-zinc-700 bg-zinc-800 px-4 py-2 text-white placeholder-zinc-500 focus:border-purple-500 focus:ring-1 focus:ring-purple-500 focus:outline-none"
                 placeholder="What needs to be done?"
                 required
               />
             </div>
 
             <div>
-              <label htmlFor="description" className="mb-1 block text-sm font-medium text-zinc-300">
+              <label
+                htmlFor="description"
+                className="mb-1 block text-sm font-medium text-zinc-300"
+              >
                 Description (optional)
               </label>
               <textarea
@@ -125,7 +136,7 @@ export function NewTaskModal({ isOpen, onClose }: NewTaskModalProps) {
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 rows={3}
-                className="w-full rounded-lg border border-zinc-700 bg-zinc-800 px-4 py-2 text-white placeholder-zinc-500 focus:border-purple-500 focus:outline-none focus:ring-1 focus:ring-purple-500"
+                className="w-full rounded-lg border border-zinc-700 bg-zinc-800 px-4 py-2 text-white placeholder-zinc-500 focus:border-purple-500 focus:ring-1 focus:ring-purple-500 focus:outline-none"
                 placeholder="Add more details..."
               />
             </div>
@@ -145,7 +156,7 @@ export function NewTaskModal({ isOpen, onClose }: NewTaskModalProps) {
                         "h-8 w-8 rounded-lg border-2 text-sm font-medium transition-all",
                         level <= priority
                           ? "border-purple-500 bg-purple-500/20 text-purple-400"
-                          : "border-zinc-700 bg-zinc-800 text-zinc-500 hover:border-zinc-600"
+                          : "border-zinc-700 bg-zinc-800 text-zinc-500 hover:border-zinc-600",
                       )}
                     >
                       {level}
@@ -166,7 +177,7 @@ export function NewTaskModal({ isOpen, onClose }: NewTaskModalProps) {
                       onClick={() => setSpiciness(level)}
                       className={cn(
                         "h-8 w-8 rounded-lg text-sm transition-all",
-                        level <= spiciness ? "opacity-100" : "opacity-30"
+                        level <= spiciness ? "opacity-100" : "opacity-30",
                       )}
                     >
                       🌶️
@@ -177,7 +188,10 @@ export function NewTaskModal({ isOpen, onClose }: NewTaskModalProps) {
             </div>
 
             <div>
-              <label htmlFor="deadline" className="mb-1 block text-sm font-medium text-zinc-300">
+              <label
+                htmlFor="deadline"
+                className="mb-1 block text-sm font-medium text-zinc-300"
+              >
                 Deadline (optional)
               </label>
               <input
@@ -186,7 +200,7 @@ export function NewTaskModal({ isOpen, onClose }: NewTaskModalProps) {
                 value={deadline}
                 onChange={(e) => setDeadline(e.target.value)}
                 min={new Date().toISOString().split("T")[0]}
-                className="w-full rounded-lg border border-zinc-700 bg-zinc-800 px-4 py-2 text-white focus:border-purple-500 focus:outline-none focus:ring-1 focus:ring-purple-500"
+                className="w-full rounded-lg border border-zinc-700 bg-zinc-800 px-4 py-2 text-white focus:border-purple-500 focus:ring-1 focus:ring-purple-500 focus:outline-none"
               />
             </div>
 
@@ -205,8 +219,18 @@ export function NewTaskModal({ isOpen, onClose }: NewTaskModalProps) {
                       onClick={() => removeSubtask(index)}
                       className="text-zinc-500 hover:text-red-400"
                     >
-                      <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                      <svg
+                        className="h-4 w-4"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M6 18L18 6M6 6l12 12"
+                        />
                       </svg>
                     </button>
                   </div>
@@ -223,7 +247,7 @@ export function NewTaskModal({ isOpen, onClose }: NewTaskModalProps) {
                       }
                     }}
                     placeholder="Add a subtask..."
-                    className="flex-1 rounded-lg border border-zinc-700 bg-zinc-800 px-3 py-1.5 text-sm text-white placeholder-zinc-500 focus:border-purple-500 focus:outline-none focus:ring-1 focus:ring-purple-500"
+                    className="flex-1 rounded-lg border border-zinc-700 bg-zinc-800 px-3 py-1.5 text-sm text-white placeholder-zinc-500 focus:border-purple-500 focus:ring-1 focus:ring-purple-500 focus:outline-none"
                   />
                   <button
                     type="button"

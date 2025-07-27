@@ -16,13 +16,19 @@ interface TaskCardProps {
   timer?: ReactNode;
 }
 
-export function TaskCard({ task, isSelected, actions, onToggleSubtask, timer }: TaskCardProps) {
+export function TaskCard({
+  task,
+  isSelected,
+  actions,
+  onToggleSubtask,
+  timer,
+}: TaskCardProps) {
   const formatDeadline = (date: Date | null) => {
     if (!date) return null;
     const now = new Date();
     const diff = date.getTime() - now.getTime();
     const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-    
+
     if (days < 0) return { text: "Overdue", className: "text-red-400" };
     if (days === 0) return { text: "Today", className: "text-amber-400" };
     if (days === 1) return { text: "Tomorrow", className: "text-blue-400" };
@@ -36,7 +42,9 @@ export function TaskCard({ task, isSelected, actions, onToggleSubtask, timer }: 
     <div
       className={cn(
         "group rounded-xl border bg-zinc-900/50 p-6 transition-all",
-        isSelected ? "border-purple-500/50 shadow-lg" : "border-zinc-800 hover:border-zinc-700"
+        isSelected
+          ? "border-purple-500/50 shadow-lg"
+          : "border-zinc-800 hover:border-zinc-700",
       )}
     >
       <div className="flex items-start justify-between gap-4">
@@ -45,30 +53,34 @@ export function TaskCard({ task, isSelected, actions, onToggleSubtask, timer }: 
             <div className="flex flex-col items-center gap-1">
               {/* Priority indicator */}
               <div className="flex flex-col-reverse gap-0.5">
-                {[...Array(5)].map((_, i) => (
+                {[...(Array(5) as unknown[])].map((_, i) => (
                   <div
                     key={i}
                     className={cn(
                       "h-1 w-4 rounded-full transition-colors",
                       i < task.priority
                         ? "bg-gradient-to-r from-purple-500 to-pink-500"
-                        : "bg-zinc-800"
+                        : "bg-zinc-800",
                     )}
                   />
                 ))}
               </div>
-              
+
               {/* Spiciness indicator */}
               <div className="mt-2 flex gap-0.5">
-                {[...Array(task.spiciness)].map((_, i) => (
-                  <span key={i} className="text-xs">🌶️</span>
+                {[...(Array(task.spiciness) as unknown[])].map((_, i) => (
+                  <span key={i} className="text-xs">
+                    🌶️
+                  </span>
                 ))}
               </div>
             </div>
 
             <div className="flex-1">
-              <h3 className="text-lg font-semibold text-zinc-100">{task.title}</h3>
-              
+              <h3 className="text-lg font-semibold text-zinc-100">
+                {task.title}
+              </h3>
+
               {task.description && (
                 <p className="mt-1 text-sm text-zinc-400">{task.description}</p>
               )}
@@ -86,7 +98,11 @@ export function TaskCard({ task, isSelected, actions, onToggleSubtask, timer }: 
                         onChange={() => onToggleSubtask?.(subtask.id)}
                         className="h-4 w-4 rounded border-zinc-700 bg-zinc-800 text-purple-500 focus:ring-2 focus:ring-purple-500 focus:ring-offset-0"
                       />
-                      <span className={cn(subtask.completed && "line-through opacity-50")}>
+                      <span
+                        className={cn(
+                          subtask.completed && "line-through opacity-50",
+                        )}
+                      >
                         {subtask.title}
                       </span>
                     </label>
@@ -96,18 +112,43 @@ export function TaskCard({ task, isSelected, actions, onToggleSubtask, timer }: 
 
               <div className="mt-3 flex items-center gap-4 text-xs">
                 {deadline && (
-                  <span className={cn("flex items-center gap-1", deadline.className)}>
-                    <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  <span
+                    className={cn(
+                      "flex items-center gap-1",
+                      deadline.className,
+                    )}
+                  >
+                    <svg
+                      className="h-3 w-3"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                      />
                     </svg>
                     {deadline.text}
                   </span>
                 )}
-                
+
                 {task.totalTimeSpent > 0 && (
                   <span className="flex items-center gap-1 text-zinc-500">
-                    <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    <svg
+                      className="h-3 w-3"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                      />
                     </svg>
                     {formatTime(task.totalTimeSpent)}
                   </span>
@@ -129,7 +170,7 @@ export function TaskCard({ task, isSelected, actions, onToggleSubtask, timer }: 
 function formatTime(seconds: number): string {
   const hours = Math.floor(seconds / 3600);
   const minutes = Math.floor((seconds % 3600) / 60);
-  
+
   if (hours > 0) {
     return `${hours}h ${minutes}m`;
   }

@@ -10,7 +10,8 @@ import { Providers } from "./_components/providers";
 
 export const metadata: Metadata = {
   title: "YaNo - Your Daily Task Planner",
-  description: "Plan your day with YaNo - A powerful task management tool for productivity enthusiasts",
+  description:
+    "Plan your day with YaNo - A powerful task management tool for productivity enthusiasts",
   icons: [{ rel: "icon", url: "/favicon.ico" }],
 };
 

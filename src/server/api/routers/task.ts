@@ -1,25 +1,23 @@
 import { z } from "zod";
 import { TaskStatus } from "@prisma/client";
-import {
-  createTRPCRouter,
-  protectedProcedure,
-} from "~/server/api/trpc";
+import type { PrismaClient } from "@prisma/client";
+import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 
 // Helper to check if daily reset is needed
 const needsDailyReset = (lastResetDate: Date): boolean => {
   const now = new Date();
   const lastReset = new Date(lastResetDate);
-  
+
   // Reset if we're on a different day
   return now.toDateString() !== lastReset.toDateString();
 };
 
 // Perform daily reset for a user
-const performDailyReset = async (ctx: any, userId: string) => {
+const performDailyReset = async (ctx: { db: PrismaClient }, userId: string) => {
   const now = new Date();
-  
+
   // Start a transaction to ensure consistency
-  await ctx.db.$transaction(async (tx: any) => {
+  await ctx.db.$transaction(async (tx) => {
     // 1. Move PAUSED tasks back to TODAY (user was working on them)
     await tx.task.updateMany({
       where: {
@@ -30,7 +28,7 @@ const performDailyReset = async (ctx: any, userId: string) => {
         status: TaskStatus.TODAY,
       },
     });
-    
+
     // 2. Move untouched TODAY tasks back to INBOX
     await tx.task.updateMany({
       where: {
@@ -42,7 +40,7 @@ const performDailyReset = async (ctx: any, userId: string) => {
         acceptedAt: null,
       },
     });
-    
+
     // 3. Clear expired postponedUntil dates
     await tx.task.updateMany({
       where: {
@@ -55,7 +53,7 @@ const performDailyReset = async (ctx: any, userId: string) => {
         postponedUntil: null,
       },
     });
-    
+
     // 4. Update user's lastResetDate
     await tx.user.update({
       where: { id: userId },
@@ -72,7 +70,7 @@ export const taskRouter = createTRPCRouter({
       where: { id: ctx.session.user.id },
       select: { lastResetDate: true },
     });
-    
+
     if (user && needsDailyReset(user.lastResetDate)) {
       await performDailyReset(ctx, ctx.session.user.id);
     }
@@ -82,10 +80,7 @@ export const taskRouter = createTRPCRouter({
       where: {
         userId: ctx.session.user.id,
         status: TaskStatus.INBOX,
-        OR: [
-          { postponedUntil: null },
-          { postponedUntil: { lte: now } },
-        ],
+        OR: [{ postponedUntil: null }, { postponedUntil: { lte: now } }],
       },
       include: {
         subtasks: {
@@ -107,7 +102,7 @@ export const taskRouter = createTRPCRouter({
       where: { id: ctx.session.user.id },
       select: { lastResetDate: true },
     });
-    
+
     if (user && needsDailyReset(user.lastResetDate)) {
       await performDailyReset(ctx, ctx.session.user.id);
     }
@@ -137,10 +132,12 @@ export const taskRouter = createTRPCRouter({
 
   // Get archived tasks
   getArchive: protectedProcedure
-    .input(z.object({
-      limit: z.number().min(1).max(100).default(50),
-      cursor: z.string().optional(),
-    }))
+    .input(
+      z.object({
+        limit: z.number().min(1).max(100).default(50),
+        cursor: z.string().optional(),
+      }),
+    )
     .query(async ({ ctx, input }) => {
       const { limit, cursor } = input;
       const tasks = await ctx.db.task.findMany({
@@ -184,27 +181,31 @@ export const taskRouter = createTRPCRouter({
 
   // Create a new task
   create: protectedProcedure
-    .input(z.object({
-      title: z.string().min(1),
-      description: z.string().optional(),
-      priority: z.number().min(1).max(5).default(3),
-      spiciness: z.number().min(1).max(5).default(3),
-      deadline: z.date().optional(),
-      subtasks: z.array(z.string()).optional(),
-    }))
+    .input(
+      z.object({
+        title: z.string().min(1),
+        description: z.string().optional(),
+        priority: z.number().min(1).max(5).default(3),
+        spiciness: z.number().min(1).max(5).default(3),
+        deadline: z.date().optional(),
+        subtasks: z.array(z.string()).optional(),
+      }),
+    )
     .mutation(async ({ ctx, input }) => {
       const { subtasks, ...taskData } = input;
-      
+
       return ctx.db.task.create({
         data: {
           ...taskData,
           userId: ctx.session.user.id,
-          subtasks: subtasks ? {
-            create: subtasks.map((title, index) => ({
-              title,
-              order: index,
-            })),
-          } : undefined,
+          subtasks: subtasks
+            ? {
+                create: subtasks.map((title, index) => ({
+                  title,
+                  order: index,
+                })),
+              }
+            : undefined,
         },
         include: {
           subtasks: true,
@@ -268,7 +269,7 @@ export const taskRouter = createTRPCRouter({
     .input(z.object({ id: z.string() }))
     .mutation(async ({ ctx, input }) => {
       const now = new Date();
-      
+
       // Create a new time session
       await ctx.db.timeSession.create({
         data: {
@@ -313,7 +314,9 @@ export const taskRouter = createTRPCRouter({
 
       const activeSession = task.timeSessions[0]!;
       const now = new Date();
-      const duration = Math.floor((now.getTime() - activeSession.startedAt.getTime()) / 1000);
+      const duration = Math.floor(
+        (now.getTime() - activeSession.startedAt.getTime()) / 1000,
+      );
 
       // End the current time session
       await ctx.db.timeSession.update({
@@ -359,11 +362,13 @@ export const taskRouter = createTRPCRouter({
       }
 
       const now = new Date();
-      
+
       // End any active time session
       if (task.timeSessions.length > 0) {
         const activeSession = task.timeSessions[0]!;
-        const duration = Math.floor((now.getTime() - activeSession.startedAt.getTime()) / 1000);
+        const duration = Math.floor(
+          (now.getTime() - activeSession.startedAt.getTime()) / 1000,
+        );
 
         await ctx.db.timeSession.update({
           where: { id: activeSession.id },
@@ -398,14 +403,16 @@ export const taskRouter = createTRPCRouter({
 
   // Update task
   update: protectedProcedure
-    .input(z.object({
-      id: z.string(),
-      title: z.string().min(1).optional(),
-      description: z.string().optional(),
-      priority: z.number().min(1).max(5).optional(),
-      spiciness: z.number().min(1).max(5).optional(),
-      deadline: z.date().nullable().optional(),
-    }))
+    .input(
+      z.object({
+        id: z.string(),
+        title: z.string().min(1).optional(),
+        description: z.string().optional(),
+        priority: z.number().min(1).max(5).optional(),
+        spiciness: z.number().min(1).max(5).optional(),
+        deadline: z.date().nullable().optional(),
+      }),
+    )
     .mutation(async ({ ctx, input }) => {
       const { id, ...data } = input;
       return ctx.db.task.update({
@@ -419,10 +426,12 @@ export const taskRouter = createTRPCRouter({
 
   // Toggle subtask
   toggleSubtask: protectedProcedure
-    .input(z.object({
-      taskId: z.string(),
-      subtaskId: z.string(),
-    }))
+    .input(
+      z.object({
+        taskId: z.string(),
+        subtaskId: z.string(),
+      }),
+    )
     .mutation(async ({ ctx, input }) => {
       // Verify task ownership
       const task = await ctx.db.task.findUnique({
@@ -472,9 +481,11 @@ export const taskRouter = createTRPCRouter({
         where: { id: ctx.session.user.id },
       });
 
-      const needsReset = user?.lastResetDate ? needsDailyReset(user.lastResetDate) : true;
+      const needsReset = user?.lastResetDate
+        ? needsDailyReset(user.lastResetDate)
+        : true;
       if (needsReset) {
-        await performDailyReset(ctx.db, ctx.session.user.id);
+        await performDailyReset(ctx, ctx.session.user.id);
       }
 
       return ctx.db.task.update({
@@ -492,31 +503,29 @@ export const taskRouter = createTRPCRouter({
     }),
 
   // Manual daily reset (can be called by cron job)
-  performDailyReset: protectedProcedure
-    .mutation(async ({ ctx }) => {
-      await performDailyReset(ctx, ctx.session.user.id);
-      return { success: true };
-    }),
-    
+  performDailyReset: protectedProcedure.mutation(async ({ ctx }) => {
+    await performDailyReset(ctx, ctx.session.user.id);
+    return { success: true };
+  }),
+
   // Reset all users (for cron job - requires special handling)
-  resetAllUsers: protectedProcedure
-    .mutation(async ({ ctx }) => {
-      // In production, you'd want to add additional auth check here
-      // to ensure only cron jobs can call this
-      
-      const users = await ctx.db.user.findMany({
-        select: { id: true, lastResetDate: true },
-      });
-      
-      const resetPromises = users
-        .filter(user => needsDailyReset(user.lastResetDate))
-        .map(user => performDailyReset(ctx, user.id));
-      
-      await Promise.all(resetPromises);
-      
-      return { 
-        success: true, 
-        usersReset: resetPromises.length 
-      };
-    }),
+  resetAllUsers: protectedProcedure.mutation(async ({ ctx }) => {
+    // In production, you'd want to add additional auth check here
+    // to ensure only cron jobs can call this
+
+    const users = await ctx.db.user.findMany({
+      select: { id: true, lastResetDate: true },
+    });
+
+    const resetPromises = users
+      .filter((user) => needsDailyReset(user.lastResetDate))
+      .map((user) => performDailyReset(ctx, user.id));
+
+    await Promise.all(resetPromises);
+
+    return {
+      success: true,
+      usersReset: resetPromises.length,
+    };
+  }),
 });

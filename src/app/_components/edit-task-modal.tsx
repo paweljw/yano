@@ -17,17 +17,19 @@ export function EditTaskModal({ task, isOpen, onClose }: EditTaskModalProps) {
   const [priority, setPriority] = useState(3);
   const [spiciness, setSpiciness] = useState(3);
   const [deadline, setDeadline] = useState("");
-  
+
   const titleRef = useRef<HTMLInputElement>(null);
   const utils = api.useUtils();
 
   useEffect(() => {
     if (task && isOpen) {
       setTitle(task.title);
-      setDescription(task.description || "");
+      setDescription(task.description ?? "");
       setPriority(task.priority);
       setSpiciness(task.spiciness);
-      setDeadline(task.deadline ? task.deadline.toISOString().split('T')[0] : "");
+      setDeadline(
+        task.deadline ? (task.deadline.toISOString().split("T")[0] ?? "") : "",
+      );
     }
   }, [task, isOpen]);
 
@@ -40,8 +42,8 @@ export function EditTaskModal({ task, isOpen, onClose }: EditTaskModalProps) {
 
   const updateTask = api.task.update.useMutation({
     onSuccess: () => {
-      utils.task.getInbox.invalidate();
-      utils.task.getToday.invalidate();
+      void utils.task.getInbox.invalidate();
+      void utils.task.getToday.invalidate();
       onClose();
     },
   });
@@ -50,21 +52,24 @@ export function EditTaskModal({ task, isOpen, onClose }: EditTaskModalProps) {
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (!isOpen) return;
-      
-      if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
+
+      if ((e.metaKey || e.ctrlKey) && e.key === "Enter") {
         e.preventDefault();
         if (title.trim()) {
-          const formEvent = new Event('submit', { bubbles: true, cancelable: true });
-          document.querySelector('form')?.dispatchEvent(formEvent);
+          const formEvent = new Event("submit", {
+            bubbles: true,
+            cancelable: true,
+          });
+          document.querySelector("form")?.dispatchEvent(formEvent);
         }
-      } else if (e.key === 'Escape') {
+      } else if (e.key === "Escape") {
         e.preventDefault();
         onClose();
       }
     };
 
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
   }, [isOpen, title, onClose]);
 
   if (!isOpen || !task) return null;
@@ -93,7 +98,10 @@ export function EditTaskModal({ task, isOpen, onClose }: EditTaskModalProps) {
 
           <div className="space-y-4">
             <div>
-              <label htmlFor="title" className="mb-1 block text-sm font-medium text-zinc-300">
+              <label
+                htmlFor="title"
+                className="mb-1 block text-sm font-medium text-zinc-300"
+              >
                 Title
               </label>
               <input
@@ -102,14 +110,17 @@ export function EditTaskModal({ task, isOpen, onClose }: EditTaskModalProps) {
                 type="text"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
-                className="w-full rounded-lg border border-zinc-700 bg-zinc-800 px-4 py-2 text-white placeholder-zinc-500 focus:border-purple-500 focus:outline-none focus:ring-1 focus:ring-purple-500"
+                className="w-full rounded-lg border border-zinc-700 bg-zinc-800 px-4 py-2 text-white placeholder-zinc-500 focus:border-purple-500 focus:ring-1 focus:ring-purple-500 focus:outline-none"
                 placeholder="What needs to be done?"
                 required
               />
             </div>
 
             <div>
-              <label htmlFor="description" className="mb-1 block text-sm font-medium text-zinc-300">
+              <label
+                htmlFor="description"
+                className="mb-1 block text-sm font-medium text-zinc-300"
+              >
                 Description (optional)
               </label>
               <textarea
@@ -117,7 +128,7 @@ export function EditTaskModal({ task, isOpen, onClose }: EditTaskModalProps) {
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 rows={3}
-                className="w-full rounded-lg border border-zinc-700 bg-zinc-800 px-4 py-2 text-white placeholder-zinc-500 focus:border-purple-500 focus:outline-none focus:ring-1 focus:ring-purple-500"
+                className="w-full rounded-lg border border-zinc-700 bg-zinc-800 px-4 py-2 text-white placeholder-zinc-500 focus:border-purple-500 focus:ring-1 focus:ring-purple-500 focus:outline-none"
                 placeholder="Add more details..."
               />
             </div>
@@ -137,7 +148,7 @@ export function EditTaskModal({ task, isOpen, onClose }: EditTaskModalProps) {
                         "h-8 w-8 rounded-lg border-2 text-sm font-medium transition-all",
                         level <= priority
                           ? "border-purple-500 bg-purple-500/20 text-purple-400"
-                          : "border-zinc-700 bg-zinc-800 text-zinc-500 hover:border-zinc-600"
+                          : "border-zinc-700 bg-zinc-800 text-zinc-500 hover:border-zinc-600",
                       )}
                     >
                       {level}
@@ -158,7 +169,7 @@ export function EditTaskModal({ task, isOpen, onClose }: EditTaskModalProps) {
                       onClick={() => setSpiciness(level)}
                       className={cn(
                         "h-8 w-8 rounded-lg text-sm transition-all",
-                        level <= spiciness ? "opacity-100" : "opacity-30"
+                        level <= spiciness ? "opacity-100" : "opacity-30",
                       )}
                     >
                       🌶️
@@ -169,7 +180,10 @@ export function EditTaskModal({ task, isOpen, onClose }: EditTaskModalProps) {
             </div>
 
             <div>
-              <label htmlFor="deadline" className="mb-1 block text-sm font-medium text-zinc-300">
+              <label
+                htmlFor="deadline"
+                className="mb-1 block text-sm font-medium text-zinc-300"
+              >
                 Deadline (optional)
               </label>
               <input
@@ -178,7 +192,7 @@ export function EditTaskModal({ task, isOpen, onClose }: EditTaskModalProps) {
                 value={deadline}
                 onChange={(e) => setDeadline(e.target.value)}
                 min={new Date().toISOString().split("T")[0]}
-                className="w-full rounded-lg border border-zinc-700 bg-zinc-800 px-4 py-2 text-white focus:border-purple-500 focus:outline-none focus:ring-1 focus:ring-purple-500"
+                className="w-full rounded-lg border border-zinc-700 bg-zinc-800 px-4 py-2 text-white focus:border-purple-500 focus:ring-1 focus:ring-purple-500 focus:outline-none"
               />
             </div>
           </div>
